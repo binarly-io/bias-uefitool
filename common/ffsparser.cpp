@@ -1316,7 +1316,7 @@ USTATUS FfsParser::findNextRawAreaItem(const UModelIndex & index, const UINT32 l
     
     if (dataSize < sizeof(UINT32))
         return U_STORES_NOT_FOUND;
-    
+
     UINT32 offset = localOffset;
     for (; offset < dataSize - sizeof(UINT32); offset++) {
         const UINT32* currentPos = (const UINT32*)(data.constData() + offset);
@@ -1415,7 +1415,7 @@ USTATUS FfsParser::findNextRawAreaItem(const UModelIndex & index, const UINT32 l
             nextItemSize = sizeCandidate;
             nextItemAlternativeSize = sizeCandidate;
             nextItemOffset = offset;
-            break;
+            continue;
         }
     }
     
