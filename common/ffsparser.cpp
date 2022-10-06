@@ -1491,8 +1491,8 @@ USTATUS FfsParser::parseVolumeBody(const UModelIndex & index)
         UINT32 fileSize = getFileSize(volumeBody, fileOffset, ffsVersion);
         
         if (fileSize == 0) {
+            fileSize = 0xFFFFFFFF;
             msg(usprintf("%s: file header parsing failed with invalid size", __FUNCTION__), index);
-            break; // Exit from parsing loop
         }
         
         // Check that we are at the empty space
