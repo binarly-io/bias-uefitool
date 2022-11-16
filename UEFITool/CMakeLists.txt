@@ -32,7 +32,7 @@ SET(PROJECT_SOURCES
  uefitool.cpp
  searchdialog.cpp
  hexviewdialog.cpp
- guidlineedit.cpp
+ hexlineedit.cpp
  ffsfinder.cpp
  hexspinbox.cpp
  qhexedit2/qhexedit.cpp
@@ -97,13 +97,6 @@ SET(PROJECT_SOURCES
 QT_ADD_RESOURCES(PROJECT_SOURCES 
  uefitool.qrc
 )
-
-option(DARK_MODE OFF)
-if(DARK_MODE)
-ADD_DEFINITIONS(
-  -DDARK_MODE
-) 
-endif()
 
 ADD_DEFINITIONS(
  -DU_ENABLE_NVRAM_PARSING_SUPPORT
