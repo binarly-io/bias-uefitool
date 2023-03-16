@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.22)
 
 PROJECT(UEFITool LANGUAGES C CXX)
 
@@ -52,7 +52,6 @@ SET(PROJECT_SOURCES
  ../common/ffsbuilder.cpp 
  ../common/ffsparser.cpp 
  ../common/ffsreport.cpp 
- ../common/ffsutils.cpp 
  ../common/treeitem.cpp 
  ../common/treemodel.cpp 
  ../common/LZMA/LzmaCompress.c 
@@ -71,6 +70,7 @@ SET(PROJECT_SOURCES
  ../common/digest/sha256.c 
  ../common/digest/sha512.c 
  ../common/digest/sm3.c 
+ ../common/generated/ami_nvar.cpp
  ../common/generated/intel_acbp_v1.cpp 
  ../common/generated/intel_acbp_v2.cpp 
  ../common/generated/intel_keym_v1.cpp 
@@ -120,3 +120,16 @@ SET_TARGET_PROPERTIES(UEFITool PROPERTIES
  AUTOMOC ON
  AUTOUIC ON
 )
+
+IF(UNIX AND (NOT APPLE) AND (NOT CYGWIN))
+ SET_TARGET_PROPERTIES(UEFITool PROPERTIES OUTPUT_NAME uefitool)
+ INSTALL(FILES icons/uefitool_16x16.png   DESTINATION share/icons/hicolor/16x16/apps   RENAME uefitool.png)
+ INSTALL(FILES icons/uefitool_32x32.png   DESTINATION share/icons/hicolor/32x32/apps   RENAME uefitool.png)
+ INSTALL(FILES icons/uefitool_64x64.png   DESTINATION share/icons/hicolor/64x64/apps   RENAME uefitool.png)
+ INSTALL(FILES icons/uefitool_128x128.png DESTINATION share/icons/hicolor/128x128/apps RENAME uefitool.png)
+ INSTALL(FILES icons/uefitool_256x256.png DESTINATION share/icons/hicolor/256x256/apps RENAME uefitool.png)
+ INSTALL(FILES icons/uefitool_512x512.png DESTINATION share/icons/hicolor/512x512/apps RENAME uefitool.png)
+ INSTALL(FILES uefitool.desktop DESTINATION share/applications)
+ENDIF()
+
+INSTALL(TARGETS UEFITool BUNDLE DESTINATION "/Applications" )

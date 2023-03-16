@@ -146,6 +146,7 @@ void fixFileName(UString &name, bool replaceSpaces)
 // Returns text representation of error code
 UString errorCodeToUString(USTATUS errorCode)
 {
+    // TODO: improve
     switch (errorCode) {
         case U_SUCCESS:                         return UString("Success");
         case U_NOT_IMPLEMENTED:                 return UString("Not implemented");
@@ -165,7 +166,6 @@ UString errorCodeToUString(USTATUS errorCode)
         case U_VOLUMES_NOT_FOUND:               return UString("UEFI volumes not found");
         case U_INVALID_VOLUME:                  return UString("Invalid UEFI volume");
         case U_VOLUME_REVISION_NOT_SUPPORTED:   return UString("Volume revision not supported");
-            //case U_VOLUME_GROW_FAILED:              return UString("Volume grow failed");
         case U_UNKNOWN_FFS:                     return UString("Unknown file system");
         case U_INVALID_FILE:                    return UString("Invalid file");
         case U_INVALID_SECTION:                 return UString("Invalid section");
@@ -177,26 +177,19 @@ UString errorCodeToUString(USTATUS errorCode)
         case U_UNKNOWN_COMPRESSION_TYPE:        return UString("Unknown compression type");
         case U_UNKNOWN_EXTRACT_MODE:            return UString("Unknown extract mode");
         case U_UNKNOWN_REPLACE_MODE:            return UString("Unknown replace mode");
-            //case U_UNKNOWN_INSERT_MODE:             return UString("Unknown insert mode");
         case U_UNKNOWN_IMAGE_TYPE:              return UString("Unknown executable image type");
         case U_UNKNOWN_PE_OPTIONAL_HEADER_TYPE: return UString("Unknown PE optional header type");
         case U_UNKNOWN_RELOCATION_TYPE:         return UString("Unknown relocation type");
-            //case U_GENERIC_CALL_NOT_SUPPORTED:      return UString("Generic call not supported");
-            //case U_VOLUME_BASE_NOT_FOUND:           return UString("Volume base address not found");
-            //case U_PEI_CORE_ENTRY_POINT_NOT_FOUND:  return UString("PEI core entry point not found");
         case U_COMPLEX_BLOCK_MAP:               return UString("Block map structure too complex for correct analysis");
         case U_DIR_ALREADY_EXIST:               return UString("Directory already exists");
         case U_DIR_CREATE:                      return UString("Directory can't be created");
         case U_DIR_CHANGE:                      return UString("Change directory failed");
-            //case U_UNKNOWN_PATCH_TYPE:              return UString("Unknown patch type");
-            //case U_PATCH_OFFSET_OUT_OF_BOUNDS:      return UString("Patch offset out of bounds");
-            //case U_INVALID_SYMBOL:                  return UString("Invalid symbol");
-            //case U_NOTHING_TO_PATCH:                return UString("Nothing to patch");
         case U_DEPEX_PARSE_FAILED:              return UString("Dependency expression parsing failed");
         case U_TRUNCATED_IMAGE:                 return UString("Image is truncated");
         case U_INVALID_CAPSULE:                 return UString("Invalid capsule");
         case U_STORES_NOT_FOUND:                return UString("Stores not found");
         case U_INVALID_STORE_SIZE:              return UString("Invalid store size");
+        case U_INVALID_STORE:                   return UString("Invalid store");
         default:                                return usprintf("Unknown error %02lX", errorCode);
     }
 }
@@ -469,10 +462,10 @@ INTN findPattern(const UINT8 *pattern, const UINT8 *patternMask, UINTN patternSi
         return -1;
     
     while (dataOff + patternSize < dataSize) {
-        BOOLEAN matches = TRUE;
+        bool matches = true;
         for (UINTN i = 0; i < patternSize; i++) {
             if ((data[dataOff + i] & patternMask[i]) != pattern[i]) {
-                matches = FALSE;
+                matches = false;
                 break;
             }
         }
@@ -486,12 +479,12 @@ INTN findPattern(const UINT8 *pattern, const UINT8 *patternMask, UINTN patternSi
     return -1;
 }
 
-BOOLEAN makePattern(const CHAR8 *textPattern, std::vector<UINT8> &pattern, std::vector<UINT8> &patternMask)
+bool makePattern(const CHAR8 *textPattern, std::vector<UINT8> &pattern, std::vector<UINT8> &patternMask)
 {
     UINTN len = std::strlen(textPattern);
     
     if (len == 0 || len % 2 != 0)
-        return FALSE;
+        return false;
     
     len /= 2;
     
@@ -503,7 +496,7 @@ BOOLEAN makePattern(const CHAR8 *textPattern, std::vector<UINT8> &pattern, std::
         int v2 = char2hex(std::toupper(textPattern[i * 2 + 1]));
         
         if (v1 == -1 || v2 == -1)
-            return FALSE;
+            return false;
         
         if (v1 != -2) {
             patternMask[i] = 0xF0;
@@ -516,7 +509,7 @@ BOOLEAN makePattern(const CHAR8 *textPattern, std::vector<UINT8> &pattern, std::
         }
     }
     
-    return TRUE;
+    return true;
 }
 
 USTATUS gzipDecompress(const UByteArray & input, UByteArray & output)
@@ -526,20 +519,20 @@ USTATUS gzipDecompress(const UByteArray & input, UByteArray & output)
     if (input.size() == 0)
         return U_SUCCESS;
     
-    z_stream stream;
+    z_stream stream = {};
     stream.next_in = (z_const Bytef *)input.data();
     stream.avail_in = (uInt)input.size();
     stream.zalloc = Z_NULL;
     stream.zfree = Z_NULL;
     stream.opaque = Z_NULL;
     
-    // 15 for the maximum history buffer, 16 for gzip only input.
+    // 15 for the maximum history buffer, 16 for gzip only input
     int ret = inflateInit2(&stream, 15U | 16U);
     if (ret != Z_OK)
         return U_GZIP_DECOMPRESSION_FAILED;
     
     while (ret == Z_OK) {
-        Bytef out[4096];
+        Bytef out[0x1000] = {};
         stream.next_out = out;
         stream.avail_out = sizeof(out);
         
@@ -550,4 +543,37 @@ USTATUS gzipDecompress(const UByteArray & input, UByteArray & output)
     
     inflateEnd(&stream);
     return ret == Z_STREAM_END ? U_SUCCESS : U_GZIP_DECOMPRESSION_FAILED;
+}
+
+USTATUS zlibDecompress(const UByteArray& input, UByteArray& output)
+{
+    output.clear();
+
+    if (input.size() == 0)
+        return U_SUCCESS;
+
+    z_stream stream = {};
+    stream.next_in = (z_const Bytef*)input.data();
+    stream.avail_in = (uInt)input.size();
+    stream.zalloc = Z_NULL;
+    stream.zfree = Z_NULL;
+    stream.opaque = Z_NULL;
+
+    // 15 for the maximum history buffer
+    int ret = inflateInit2(&stream, 15U);
+    if (ret != Z_OK)
+        return U_ZLIB_DECOMPRESSION_FAILED;
+
+    while (ret == Z_OK) {
+        Bytef out[0x1000] = {};
+        stream.next_out = out;
+        stream.avail_out = sizeof(out);
+
+        ret = inflate(&stream, Z_NO_FLUSH);
+        if ((ret == Z_OK || ret == Z_STREAM_END) && stream.avail_out != sizeof(out))
+            output += UByteArray((char*)out, sizeof(out) - stream.avail_out);
+    }
+
+    inflateEnd(&stream);
+    return ret == Z_STREAM_END ? U_SUCCESS : U_ZLIB_DECOMPRESSION_FAILED;
 }

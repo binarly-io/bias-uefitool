@@ -37,7 +37,6 @@ HEADERS += uefitool.h \
  ../common/ffsparser.h \
  ../common/ffsreport.h \
  ../common/treeitem.h \
- ../common/ffsutils.h \
  ../common/intel_fit.h \
  ../common/intel_microcode.h \
  ../common/treemodel.h \
@@ -47,9 +46,11 @@ HEADERS += uefitool.h \
  ../common/Tiano/EfiTianoCompress.h \
  ../common/ustring.h \
  ../common/ubytearray.h \
+ ../common/umemstream.h \
  ../common/digest/sha1.h \
  ../common/digest/sha2.h \
  ../common/digest/sm3.h \
+ ../common/generated/ami_nvar.h \
  ../common/generated/intel_acbp_v1.h \
  ../common/generated/intel_acbp_v2.h \
  ../common/generated/intel_keym_v1.h \
@@ -86,7 +87,6 @@ SOURCES += uefitool_main.cpp \
  ../common/ffsbuilder.cpp \
  ../common/ffsparser.cpp \
  ../common/ffsreport.cpp \
- ../common/ffsutils.cpp \
  ../common/treeitem.cpp \
  ../common/treemodel.cpp \
  ../common/LZMA/LzmaCompress.c \
@@ -105,6 +105,7 @@ SOURCES += uefitool_main.cpp \
  ../common/digest/sha256.c \
  ../common/digest/sha512.c \
  ../common/digest/sm3.c \
+ ../common/generated/ami_nvar.cpp \
  ../common/generated/intel_acbp_v1.cpp \
  ../common/generated/intel_acbp_v2.cpp \
  ../common/generated/intel_keym_v1.cpp \

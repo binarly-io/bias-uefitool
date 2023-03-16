@@ -21,52 +21,13 @@
 #include "utility.h"
 #include "digest/sha2.h"
 
-#include <sstream>
+#include "umemstream.h"
 #include "kaitai/kaitaistream.h"
 #include "generated/intel_acbp_v1.h"
 #include "generated/intel_acbp_v2.h"
 #include "generated/intel_keym_v1.h"
 #include "generated/intel_keym_v2.h"
 #include "generated/intel_acm.h"
-
-// TODO: put into separate H/CPP when we start using Kaitai for other parsers
-// TODO: this implementation is certainly not a valid replacement to std::stringstream
-// TODO: because it only supports getting through the buffer once
-// TODO: however, we already do it this way, so it's enough for practical purposes of this file
-class membuf : public std::streambuf {
-public:
-    membuf(const char *p, size_t l) {
-        setg((char*)p, (char*)p, (char*)p + l);
-    }
-
-    pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which = std::ios_base::in) override
-    {
-        (void)which;
-        if (dir == std::ios_base::cur)
-            gbump((int)off);
-        else if (dir == std::ios_base::end)
-            setg(eback(), egptr() + off, egptr());
-        else if (dir == std::ios_base::beg)
-            setg(eback(), eback() + off, egptr());
-        return gptr() - eback();
-    }
-
-    pos_type seekpos(pos_type sp, std::ios_base::openmode which) override
-    {
-        return seekoff(sp - pos_type(off_type(0)), std::ios_base::beg, which);
-    }
-};
-
-class memstream : public std::istream {
-public:
-  memstream(const char *p, size_t l) : std::istream(&buffer_),
-    buffer_(p, l) {
-    rdbuf(&buffer_);
-  }
-
-private:
-  membuf buffer_;
-};
 
 USTATUS FitParser::parseFit(const UModelIndex & index)
 {
@@ -318,7 +279,7 @@ USTATUS FitParser::parseFitEntryMicrocode(const UByteArray & microcode, const UI
 USTATUS FitParser::parseFitEntryAcm(const UByteArray & acm, const UINT32 localOffset, const UModelIndex & parent, UString & info, UINT32 &realSize)
 {
     try {
-        memstream is(acm.constData(), acm.size());
+        umemstream is(acm.constData(), acm.size());
         is.seekg(localOffset, is.beg);
         kaitai::kstream ks(&is);
         intel_acm_t parsed(&ks);
@@ -436,7 +397,7 @@ USTATUS FitParser::parseFitEntryBootGuardKeyManifest(const UByteArray & keyManif
     
     // v1
     try {
-        memstream is(keyManifest.constData(), keyManifest.size());
+        umemstream is(keyManifest.constData(), keyManifest.size());
         is.seekg(localOffset, is.beg);
         kaitai::kstream ks(&is);
         intel_keym_v1_t parsed(&ks);
@@ -539,7 +500,7 @@ USTATUS FitParser::parseFitEntryBootGuardKeyManifest(const UByteArray & keyManif
     
     // v2
     try {
-        memstream is(keyManifest.constData(), keyManifest.size());
+        umemstream is(keyManifest.constData(), keyManifest.size());
         is.seekg(localOffset, is.beg);
         kaitai::kstream ks(&is);
         intel_keym_v2_t parsed(&ks);
@@ -580,7 +541,7 @@ USTATUS FitParser::parseFitEntryBootGuardKeyManifest(const UByteArray & keyManif
         else {
             kmInfo += UString("KM Hashes:\n");
             for (UINT16 i = 0; i < parsed.num_km_hashes(); i++) {
-                intel_keym_v2_t::km_hash_t* current_km_hash = parsed.km_hashes()->at(i);
+                const auto & current_km_hash = parsed.km_hashes()->at(i);
                 
                 // Add KM hash
                 kmInfo += usprintf("UsageFlags: %016" PRIX64 "h, ", current_km_hash->usage_flags()) + hashTypeToUString(current_km_hash->hash_algorithm_id()) + ": ";
@@ -671,7 +632,7 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
     
     // v1
     try {
-        memstream is(bootPolicy.constData(), bootPolicy.size());
+        umemstream is(bootPolicy.constData(), bootPolicy.size());
         is.seekg(localOffset, is.beg);
         kaitai::kstream ks(&is);
         intel_acbp_v1_t parsed(&ks);
@@ -699,11 +660,10 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                    parsed.nem_data_size());
         
         bpInfo += UString("Boot Policy Elements:\n");
-        const std::vector<intel_acbp_v1_t::acbp_element_t*>* elements = parsed.elements();
-        for (intel_acbp_v1_t::acbp_element_t* element : *elements) {
-            const intel_acbp_v1_t::common_header_t* element_header = element->header();
+        for (const auto & element : *parsed.elements()) {
+            const auto & element_header = element->header();
             
-            UINT64 structure_id = element_header->structure_id();
+            UINT64 structure_id = (UINT64) element_header->structure_id();
             const char* structure_id_bytes = (const char*)&structure_id;
             
             bpInfo += usprintf("StructureId: '%c%c%c%c%c%c%c%c'\n"
@@ -781,14 +741,15 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                 else {
                     bpInfo += UString("IBB Segments:\n");
                     for (UINT8 i = 0; i < ibbs_body->num_ibb_segments(); i++) {
-                        const intel_acbp_v1_t::ibb_segment_t* current_segment = ibbs_body->ibb_segments()->at(i);
+                        const auto & current_segment = ibbs_body->ibb_segments()->at(i);
                         
                         bpInfo += usprintf("Flags: %04Xh, Address: %08Xh, Size: %08Xh\n",
                                            current_segment->flags(),
                                            current_segment->base(),
                                            current_segment->size());
                         
-                        if (current_segment->flags() == intel_acbp_v1_t::IBB_SEGMENT_TYPE_IBB) {
+                        if (current_segment->flags() == intel_acbp_v1_t::IBB_SEGMENT_TYPE_IBB
+                            && current_segment->base() != 0xFFFFFFFF && current_segment->size() != 0 && current_segment->size() != 0xFFFFFFFF) {
                             PROTECTED_RANGE range = {};
                             range.Offset = current_segment->base();
                             range.Size = current_segment->size();
@@ -818,7 +779,7 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                     // v1 entries
                     if (pmda_body->_is_null_entries_v1() == false) {
                         for (UINT32 i = 0; i < pmda_body->num_entries(); i++) {
-                            const intel_acbp_v1_t::pmda_entry_v1_t* current_element = pmda_body->entries_v1()->at(i);
+                            const auto & current_element = pmda_body->entries_v1()->at(i);
                             
                             // Add element
                             bpInfo += usprintf("Address: %08Xh, Size: %08Xh\n",
@@ -833,19 +794,21 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                             bpInfo += "\n";
                             
                             // Add protected range
-                            PROTECTED_RANGE range = {};
-                            range.Offset = current_element->base();
-                            range.Size = current_element->size();
-                            range.Type = PROTECTED_RANGE_VENDOR_HASH_MICROSOFT_PMDA;
-                            range.AlgorithmId = TCG_HASH_ALGORITHM_ID_SHA256;
-                            range.Hash = UByteArray(current_element->hash().data(), current_element->hash().size());
-                            ffsParser->protectedRanges.push_back(range);
+                            if (current_element->base() != 0xFFFFFFFF && current_element->size() != 0 && current_element->size() != 0xFFFFFFFF) {
+                                PROTECTED_RANGE range = {};
+                                range.Offset = current_element->base();
+                                range.Size = current_element->size();
+                                range.Type = PROTECTED_RANGE_VENDOR_HASH_MICROSOFT_PMDA;
+                                range.AlgorithmId = TCG_HASH_ALGORITHM_ID_SHA256;
+                                range.Hash = UByteArray(current_element->hash().data(), current_element->hash().size());
+                                ffsParser->protectedRanges.push_back(range);
+                            }
                         }
                     }
                     // v2 entries
                     else if (pmda_body->_is_null_entries_v2() == false) {
                         for (UINT32 i = 0; i < pmda_body->num_entries(); i++) {
-                            const intel_acbp_v1_t::pmda_entry_v2_t* current_element = pmda_body->entries_v2()->at(i);
+                            const auto & current_element = pmda_body->entries_v2()->at(i);
                             
                             // Add element
                             bpInfo += usprintf("Address: %08Xh, Size: %08Xh\n",
@@ -860,13 +823,15 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                             bpInfo += "\n";
                             
                             // Add protected range
-                            PROTECTED_RANGE range = {};
-                            range.Offset = current_element->base();
-                            range.Size = current_element->size();
-                            range.Type = PROTECTED_RANGE_VENDOR_HASH_MICROSOFT_PMDA;
-                            range.AlgorithmId = current_element->hash()->hash_algorithm_id();
-                            range.Hash = UByteArray(current_element->hash()->hash().data(), current_element->hash()->hash().size());
-                            ffsParser->protectedRanges.push_back(range);
+                            if (current_element->base() != 0xFFFFFFFF && current_element->size() != 0 && current_element->size() != 0xFFFFFFFF) {
+                                PROTECTED_RANGE range = {};
+                                range.Offset = current_element->base();
+                                range.Size = current_element->size();
+                                range.Type = PROTECTED_RANGE_VENDOR_HASH_MICROSOFT_PMDA;
+                                range.AlgorithmId = current_element->hash()->hash_algorithm_id();
+                                range.Hash = UByteArray(current_element->hash()->hash().data(), current_element->hash()->hash().size());
+                                ffsParser->protectedRanges.push_back(range);
+                            }
                         }
                     }
                 }
@@ -930,7 +895,7 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
     
     // v2
     try {
-        memstream is(bootPolicy.constData(), bootPolicy.size());
+        umemstream is(bootPolicy.constData(), bootPolicy.size());
         is.seekg(localOffset, is.beg);
         kaitai::kstream ks(&is);
         intel_acbp_v2_t parsed(&ks); // This already verified the version to be >= 0x20
@@ -964,8 +929,7 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                    parsed.nem_data_size());
         
         bpInfo += UString("Boot Policy Elements:\n");
-        const std::vector<intel_acbp_v2_t::acbp_element_t*>* elements = parsed.elements();
-        for (intel_acbp_v2_t::acbp_element_t* element : *elements) {
+        for (const auto & element : *parsed.elements()) {
             const intel_acbp_v2_t::header_t* element_header = element->header();
             
             UINT64 structure_id = element_header->structure_id();
@@ -1075,7 +1039,7 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                 else {
                     bpInfo += UString("IBB Hashes:\n");
                     for (UINT16 i = 0; i < ibbs_body->num_ibb_digests(); i++) {
-                        const intel_acbp_v2_t::hash_t* current_hash = ibbs_body->ibb_digests()->at(i);
+                        const auto & current_hash = ibbs_body->ibb_digests()->at(i);
                         bpInfo += hashTypeToUString(current_hash->hash_algorithm_id()) + ": ";
                         for (UINT16 j = 0; j < current_hash->len_hash(); j++) {
                             bpInfo += usprintf("%02X", (UINT8)current_hash->hash().data()[j]);
@@ -1092,14 +1056,15 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                 else {
                     bpInfo += UString("IBB Segments:\n");
                     for (UINT8 i = 0; i < ibbs_body->num_ibb_segments(); i++) {
-                        const intel_acbp_v2_t::ibb_segment_t* current_segment = ibbs_body->ibb_segments()->at(i);
+                        const auto & current_segment = ibbs_body->ibb_segments()->at(i);
                         
                         bpInfo += usprintf("Flags: %04Xh, Address: %08Xh, Size: %08Xh\n",
                                            current_segment->flags(),
                                            current_segment->base(),
                                            current_segment->size());
                         
-                        if (current_segment->flags() == intel_acbp_v2_t::IBB_SEGMENT_TYPE_IBB) {
+                        if (current_segment->flags() == intel_acbp_v2_t::IBB_SEGMENT_TYPE_IBB
+                            && current_segment->base() != 0xFFFFFFFF && current_segment->size() != 0 && current_segment->size() != 0xFFFFFFFF) {
                             PROTECTED_RANGE range = {};
                             range.Offset = current_segment->base();
                             range.Size =current_segment->size();
@@ -1128,7 +1093,7 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                 else {
                     bpInfo += UString("PMDA Entries:\n");
                     for (UINT32 i = 0; i < pmda_body->num_entries(); i++) {
-                        const intel_acbp_v2_t::pmda_entry_v3_t* current_entry = pmda_body->entries()->at(i);
+                        const auto & current_entry = pmda_body->entries()->at(i);
                         
                         UINT64 entry_id = current_entry->entry_id();
                         const char* entry_id_bytes = (const char*)&entry_id;
@@ -1151,13 +1116,15 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                         bpInfo += "\n";
                         
                         // Add protected range
-                        PROTECTED_RANGE range = {};
-                        range.Offset = current_entry->base();
-                        range.Size = current_entry->size();
-                        range.Type = PROTECTED_RANGE_VENDOR_HASH_MICROSOFT_PMDA;
-                        range.AlgorithmId = current_entry->hash()->hash_algorithm_id();
-                        range.Hash = UByteArray(current_entry->hash()->hash().data(), current_entry->hash()->hash().size());
-                        ffsParser->protectedRanges.push_back(range);
+                        if (current_entry->base() != 0xFFFFFFFF && current_entry->size() != 0 && current_entry->size() != 0xFFFFFFFF) {
+                            PROTECTED_RANGE range = {};
+                            range.Offset = current_entry->base();
+                            range.Size = current_entry->size();
+                            range.Type = PROTECTED_RANGE_VENDOR_HASH_MICROSOFT_PMDA;
+                            range.AlgorithmId = current_entry->hash()->hash_algorithm_id();
+                            range.Hash = UByteArray(current_entry->hash()->hash().data(), current_entry->hash()->hash().size());
+                            ffsParser->protectedRanges.push_back(range);
+                        }
                     }
                 }
             }

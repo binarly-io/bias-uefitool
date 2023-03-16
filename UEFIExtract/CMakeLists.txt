@@ -33,6 +33,7 @@ SET(PROJECT_SOURCES
  ../common/ustring.cpp
  ../common/bstrlib/bstrlib.c
  ../common/bstrlib/bstrwrap.cpp
+ ../common/generated/ami_nvar.cpp
  ../common/generated/intel_acbp_v1.cpp
  ../common/generated/intel_acbp_v2.cpp
  ../common/generated/intel_keym_v1.cpp
@@ -64,3 +65,11 @@ ADD_DEFINITIONS(-DU_ENABLE_NVRAM_PARSING_SUPPORT -DU_ENABLE_ME_PARSING_SUPPORT  
 
 ADD_EXECUTABLE(UEFIExtract ${PROJECT_SOURCES})
 
+IF(UNIX)
+ SET_TARGET_PROPERTIES(UEFIExtract PROPERTIES OUTPUT_NAME uefiextract)
+ENDIF()
+
+INSTALL(
+ TARGETS UEFIExtract
+ RUNTIME DESTINATION bin
+)

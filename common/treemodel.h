@@ -19,6 +19,13 @@ enum ItemFixedState {
     Fixed
 };
 
+enum BootGuardMarking {
+    None = 0, // Needs to be zero
+    PartiallyInRange,
+    BootGuardFullyInRange,
+    VendorFullyInRange
+};
+
 #if defined(QT_CORE_LIB)
 // Use Qt classes
 #include <QAbstractItemModel>
@@ -89,13 +96,14 @@ class TreeModel : public QAbstractItemModel
 private:
     TreeItem *rootItem;
     bool markingEnabledFlag;
+    bool markingDarkModeFlag;
 
 public:
     QVariant data(const UModelIndex &index, int role) const;
     Qt::ItemFlags flags(const UModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
-    TreeModel(QObject *parent = 0) : QAbstractItemModel(parent), markingEnabledFlag(true) {
+    TreeModel(QObject *parent = 0) : QAbstractItemModel(parent), markingEnabledFlag(true), markingDarkModeFlag(false) {
         rootItem = new TreeItem(0, Types::Root, 0, UString(), UString(), UString(), UByteArray(), UByteArray(), UByteArray(), true, false);
     }
 
@@ -107,6 +115,7 @@ class TreeModel
 private:
     TreeItem *rootItem;
     bool markingEnabledFlag;
+    bool markingDarkModeFlag;
 
     void dataChanged(const UModelIndex &, const UModelIndex &) {}
     void layoutAboutToBeChanged() {}
@@ -116,8 +125,8 @@ public:
     UString data(const UModelIndex &index, int role) const;
     UString headerData(int section, int orientation, int role = 0) const;
 
-    TreeModel() : markingEnabledFlag(false) {
-        rootItem = new TreeItem(0, Types::Root, 0, UString(), UString(), UString(), UByteArray(), UByteArray(), UByteArray(), TRUE, FALSE);
+    TreeModel() : markingEnabledFlag(false), markingDarkModeFlag(false) {
+        rootItem = new TreeItem(0, Types::Root, 0, UString(), UString(), UString(), UByteArray(), UByteArray(), UByteArray(), true, false);
     }
 
     bool hasIndex(int row, int column, const UModelIndex &parent = UModelIndex()) const {
@@ -135,6 +144,9 @@ public:
 
     bool markingEnabled() { return markingEnabledFlag; }
     void setMarkingEnabled(const bool enabled);
+
+    bool markingDarkMode() { return markingDarkModeFlag; }
+    void setMarkingDarkMode(const bool enabled);
 
     UModelIndex index(int row, int column, const UModelIndex &parent = UModelIndex()) const;
     UModelIndex parent(const UModelIndex &index) const;
@@ -162,7 +174,7 @@ public:
 
     UString info(const UModelIndex &index) const;
     void setInfo(const UModelIndex &index, const UString &info);
-    void addInfo(const UModelIndex &index, const UString &info, const bool append = TRUE);
+    void addInfo(const UModelIndex &index, const UString &info, const bool append = true);
 
     bool fixed(const UModelIndex &index) const;
     void setFixed(const UModelIndex &index, const bool fixed);
