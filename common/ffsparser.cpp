@@ -1123,10 +1123,9 @@ USTATUS FfsParser::parseVolumeHeader(const UByteArray & volume, const UINT32 loc
     
     // Check header checksum by recalculating it
     bool msgInvalidChecksum = false;
-    UByteArray tempHeader((const char*)volumeHeader, volumeHeader->HeaderLength);
-    if (!(EFI_FIRMWARE_VOLUME_HEADER*)tempHeader.data()) {
-        return U_INVALID_VOLUME;
-    }
+
+    UByteArray tempHeader((const char*)volumeHeader, sizeof(EFI_FIRMWARE_VOLUME_HEADER));
+
     ((EFI_FIRMWARE_VOLUME_HEADER*)tempHeader.data())->Checksum = 0;
     UINT16 calculated = calculateChecksum16((const UINT16*)tempHeader.constData(), volumeHeader->HeaderLength);
     if (volumeHeader->Checksum != calculated)
