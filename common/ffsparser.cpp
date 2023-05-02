@@ -2953,7 +2953,7 @@ USTATUS FfsParser::parseGuidedSectionBody(const UModelIndex & index)
         msg(usprintf("%s: GUID defined section can not be processed", __FUNCTION__), index);
         return U_SUCCESS;
     }
-    
+
     return parseSections(processed, index, true);
 }
 
