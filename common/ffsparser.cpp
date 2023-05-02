@@ -830,7 +830,6 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
     // Sanity check
     if (!index.isValid())
         return U_INVALID_PARAMETER;
-    
     // Get item data
     UByteArray data = model->body(index);
     UINT32 headerSize = (UINT32)model->header(index).size();
@@ -1903,7 +1902,9 @@ USTATUS FfsParser::parseFileBody(const UModelIndex & index)
     // Parse raw files as raw areas
     if (model->subtype(index) == EFI_FV_FILETYPE_RAW || model->subtype(index) == EFI_FV_FILETYPE_ALL) {
         UByteArray fileGuid = UByteArray(model->header(index).constData(), sizeof(EFI_GUID));
-        
+
+        msg(usprintf("%s: fileGuid: ", __FUNCTION__) + guidToUString(readUnaligned((const EFI_GUID *)(model->header(index).constData()))), index);
+
         // Parse NVAR store
         if (fileGuid == NVRAM_NVAR_STORE_FILE_GUID) {
             model->setText(index, UString("NVAR store"));
@@ -1943,6 +1944,10 @@ USTATUS FfsParser::parseFileBody(const UModelIndex & index)
             model->setFixed(index, Fixed);
             // No need to parse further
             return U_SUCCESS;
+        }
+        else if (fileGuid == AMD_COMPRESSED_GUID) {
+            msg(usprintf("%s: AMD compressed section", __FUNCTION__), index);
+            return parseSections(model->body(index), index, true);
         }
         
         return parseRawArea(index);
@@ -2083,6 +2088,7 @@ USTATUS FfsParser::parseSections(const UByteArray & sections, const UModelIndex 
                 
                 // Show message
                 msg(usprintf("%s: non-UEFI data found in sections area", __FUNCTION__), dataIndex);
+                parseRawArea(dataIndex);
                 
                 // Exit from parsing loop
                 break;
@@ -2355,6 +2361,9 @@ USTATUS FfsParser::parseGuidedSectionHeader(const UByteArray & section, const UI
     bool msgUnknownCertSubtype = false;
     bool msgProcessingRequiredAttributeOnUnknownGuidedSection = false;
     bool msgInvalidCompressedSize = false;
+
+    msg(usprintf("%s: GUID: ", __FUNCTION__) + guidToUString(guid), index);
+
     if (baGuid == EFI_GUIDED_SECTION_CRC32) {
         if ((attributes & EFI_GUIDED_SECTION_AUTH_STATUS_VALID) == 0) { // Check that AuthStatusValid attribute is set on compressed GUIDed sections
             msgNoAuthStatusAttribute = true;
@@ -2386,7 +2395,7 @@ USTATUS FfsParser::parseGuidedSectionHeader(const UByteArray & section, const UI
         }
         // No need to change dataOffset here
     }
-    else if (baGuid == EFI_GUIDED_SECTION_ZLIB_AMD) {
+    else if (baGuid == EFI_GUIDED_SECTION_ZLIB_AMD || baGuid == EFI_GUIDED_SECTION_ZLIB_AMD2) {
         if ((attributes & EFI_GUIDED_SECTION_PROCESSING_REQUIRED) == 0) { // Check that ProcessingRequired attribute is set on compressed GUIDed sections
             msgNoProcessingRequiredAttributeCompressed = true;
         }
@@ -2915,7 +2924,7 @@ USTATUS FfsParser::parseGuidedSectionBody(const UModelIndex & index)
         info += usprintf("\nDecompressed size: %Xh (%u)", (UINT32)processed.size(), (UINT32)processed.size());
     }
     // Zlib compressed section
-    else if (baGuid == EFI_GUIDED_SECTION_ZLIB_AMD) {
+    else if (baGuid == EFI_GUIDED_SECTION_ZLIB_AMD || baGuid == EFI_GUIDED_SECTION_ZLIB_AMD2) {
         USTATUS result = zlibDecompress(model->body(index), processed);
         if (result) {
             msg(usprintf("%s: decompression failed with error ", __FUNCTION__) + errorCodeToUString(result), index);
@@ -2945,7 +2954,7 @@ USTATUS FfsParser::parseGuidedSectionBody(const UModelIndex & index)
         msg(usprintf("%s: GUID defined section can not be processed", __FUNCTION__), index);
         return U_SUCCESS;
     }
-    
+
     return parseSections(processed, index, true);
 }
 
