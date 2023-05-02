@@ -1947,6 +1947,7 @@ USTATUS FfsParser::parseFileBody(const UModelIndex & index)
         }
         else if (fileGuid == AMD_COMPRESSED_GUID) {
             msg(usprintf("%s: AMD compressed section", __FUNCTION__), index);
+            return parseSections(model->body(index), index, true);
         }
         
         return parseRawArea(index);
@@ -2393,7 +2394,7 @@ USTATUS FfsParser::parseGuidedSectionHeader(const UByteArray & section, const UI
         }
         // No need to change dataOffset here
     }
-    else if (baGuid == EFI_GUIDED_SECTION_ZLIB_AMD) {
+    else if (baGuid == EFI_GUIDED_SECTION_ZLIB_AMD || baGuid == EFI_GUIDED_SECTION_ZLIB_AMD2) {
         if ((attributes & EFI_GUIDED_SECTION_PROCESSING_REQUIRED) == 0) { // Check that ProcessingRequired attribute is set on compressed GUIDed sections
             msgNoProcessingRequiredAttributeCompressed = true;
         }
@@ -2922,7 +2923,7 @@ USTATUS FfsParser::parseGuidedSectionBody(const UModelIndex & index)
         info += usprintf("\nDecompressed size: %Xh (%u)", (UINT32)processed.size(), (UINT32)processed.size());
     }
     // Zlib compressed section
-    else if (baGuid == EFI_GUIDED_SECTION_ZLIB_AMD) {
+    else if (baGuid == EFI_GUIDED_SECTION_ZLIB_AMD || baGuid == EFI_GUIDED_SECTION_ZLIB_AMD2) {
         USTATUS result = zlibDecompress(model->body(index), processed);
         if (result) {
             msg(usprintf("%s: decompression failed with error ", __FUNCTION__) + errorCodeToUString(result), index);
