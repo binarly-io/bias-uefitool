@@ -2088,6 +2088,7 @@ USTATUS FfsParser::parseSections(const UByteArray & sections, const UModelIndex 
                 
                 // Show message
                 msg(usprintf("%s: non-UEFI data found in sections area", __FUNCTION__), dataIndex);
+                parseRawArea(dataIndex);
                 
                 // Exit from parsing loop
                 break;
