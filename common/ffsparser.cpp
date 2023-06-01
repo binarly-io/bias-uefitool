@@ -2083,16 +2083,26 @@ USTATUS FfsParser::parseSections(const UByteArray & sections, const UModelIndex 
                 // Get info
                 UString info = usprintf("Full size: %Xh (%u)", (UINT32)padding.size(), (UINT32)padding.size());
                 
-                // Add tree item
-                UModelIndex dataIndex = model->addItem(headerSize + sectionOffset, Types::Padding, Subtypes::DataPadding, UString("Non-UEFI data"), UString(), info, UByteArray(), padding, UByteArray(), Fixed, index);
-                
-                // Show message
-                msg(usprintf("%s: non-UEFI data found in sections area", __FUNCTION__), dataIndex);
-                // increases the parsing time too much
-                // parseRawArea(dataIndex);
-                
-                // Exit from parsing loop
-                break;
+                UByteArray fileGuid = UByteArray(model->header(model->parent(index)).constData(), sizeof(EFI_GUID));
+                if (fileGuid == AMD_COMPRESSED_GUID) {
+                    // Add tree item
+                    UModelIndex dataIndex = model->addItem(headerSize + sectionOffset, Types::Padding, Subtypes::DataPadding, UString("Decompressed AMD data"), UString(), info, UByteArray(), padding, UByteArray(), Fixed, index);
+
+                    parseRawArea(dataIndex);
+
+                    // Exit from parsing loop
+                    break;
+                }
+                else {
+                    // Add tree item
+                    UModelIndex dataIndex = model->addItem(headerSize + sectionOffset, Types::Padding, Subtypes::DataPadding, UString("Non-UEFI data"), UString(), info, UByteArray(), padding, UByteArray(), Fixed, index);
+                    
+                    // Show message
+                    msg(usprintf("%s: non-UEFI data found in sections area", __FUNCTION__), dataIndex);
+                    
+                    // Exit from parsing loop
+                    break;
+                }
             }
             // Preliminary parsing
             else {
