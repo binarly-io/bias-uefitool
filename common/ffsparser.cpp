@@ -830,6 +830,7 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
     // Sanity check
     if (!index.isValid())
         return U_INVALID_PARAMETER;
+    
     // Get item data
     UByteArray data = model->body(index);
     UINT32 headerSize = (UINT32)model->header(index).size();
@@ -1127,15 +1128,14 @@ USTATUS FfsParser::parseVolumeHeader(const UByteArray & volume, const UINT32 loc
         msg(usprintf("%s: input volume header length %04Xh (%hu) is smaller than volume header size", __FUNCTION__, volumeHeader->HeaderLength, volumeHeader->HeaderLength));
         return U_INVALID_VOLUME;
     }
-    UByteArray tempHeader((const char*)volume.constData(), volumeHeader->HeaderLength);
-
+    UByteArray tempHeader((const char*)volumeHeader, volumeHeader->HeaderLength);
     ((EFI_FIRMWARE_VOLUME_HEADER*)tempHeader.data())->Checksum = 0;
     UINT16 calculated = calculateChecksum16((const UINT16*)tempHeader.constData(), volumeHeader->HeaderLength);
     if (volumeHeader->Checksum != calculated)
         msgInvalidChecksum = true;
     
     // Get info
-    if (headerSize >= volume.size()) {
+    if (headerSize >= (UINT32)volume.size()) {
         return U_INVALID_VOLUME;
     }
     UByteArray header = volume.left(headerSize);
@@ -1160,7 +1160,7 @@ USTATUS FfsParser::parseVolumeHeader(const UByteArray & volume, const UINT32 loc
     
     // Extended header present
     if (volumeHeader->Revision > 1 && volumeHeader->ExtHeaderOffset) {
-        if (volume.size() < volumeHeader->ExtHeaderOffset + sizeof(EFI_FIRMWARE_VOLUME_EXT_HEADER)) {
+        if ((UINT32)volume.size() < volumeHeader->ExtHeaderOffset + sizeof(EFI_FIRMWARE_VOLUME_EXT_HEADER)) {
             return U_INVALID_VOLUME;
         }
         const EFI_FIRMWARE_VOLUME_EXT_HEADER* extendedHeader = (const EFI_FIRMWARE_VOLUME_EXT_HEADER*)(volume.constData() + volumeHeader->ExtHeaderOffset);
@@ -1895,9 +1895,7 @@ USTATUS FfsParser::parseFileBody(const UModelIndex & index)
     // Parse raw files as raw areas
     if (model->subtype(index) == EFI_FV_FILETYPE_RAW || model->subtype(index) == EFI_FV_FILETYPE_ALL) {
         UByteArray fileGuid = UByteArray(model->header(index).constData(), sizeof(EFI_GUID));
-
-        msg(usprintf("%s: fileGuid: ", __FUNCTION__) + guidToUString(readUnaligned((const EFI_GUID *)(model->header(index).constData()))), index);
-
+        
         // Parse NVAR store
         if (fileGuid == NVRAM_NVAR_STORE_FILE_GUID) {
             model->setText(index, UString("NVAR store"));
@@ -1941,8 +1939,7 @@ USTATUS FfsParser::parseFileBody(const UModelIndex & index)
         else if (fileGuid == AMD_COMPRESSED_GUID) {
             msg(usprintf("%s: AMD compressed section", __FUNCTION__), index);
             return parseSections(model->body(index), index, true);
-        }
-        
+        } 
         return parseRawArea(index);
     }
     
@@ -2365,9 +2362,6 @@ USTATUS FfsParser::parseGuidedSectionHeader(const UByteArray & section, const UI
     bool msgUnknownCertSubtype = false;
     bool msgProcessingRequiredAttributeOnUnknownGuidedSection = false;
     bool msgInvalidCompressedSize = false;
-
-    msg(usprintf("%s: GUID: ", __FUNCTION__) + guidToUString(guid), index);
-
     if (baGuid == EFI_GUIDED_SECTION_CRC32) {
         if ((attributes & EFI_GUIDED_SECTION_AUTH_STATUS_VALID) == 0) { // Check that AuthStatusValid attribute is set on compressed GUIDed sections
             msgNoAuthStatusAttribute = true;
@@ -2958,7 +2952,7 @@ USTATUS FfsParser::parseGuidedSectionBody(const UModelIndex & index)
         msg(usprintf("%s: GUID defined section can not be processed", __FUNCTION__), index);
         return U_SUCCESS;
     }
-
+    
     return parseSections(processed, index, true);
 }
 
