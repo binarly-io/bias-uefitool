@@ -20,9 +20,8 @@ hexView(NULL)
 {
     // Create UI
     ui->setupUi(this);
-    hexView = new QHexEdit(this);
+    hexView = new QHexView(this);
     hexView->setReadOnly(true);
-    hexView->setUpperCase(true);
     ui->layout->addWidget(hexView);
 }
 
@@ -65,4 +64,5 @@ void HexViewDialog::setItem(const UModelIndex & index, HexViewType type)
     dialogTitle += itemText.isEmpty() ? itemName : itemName + " | " + itemText;
     setWindowTitle(dialogTitle);
     hexView->setData(hexdata);
+    hexView->setFont(QApplication::font());
 }

@@ -15,6 +15,10 @@
 #include "uefitool.h"
 #include "ui_uefitool.h"
 
+#if QT_VERSION_MAJOR >= 6
+#include <QStyleHints>
+#endif
+
 UEFITool::UEFITool(QWidget *parent) :
 QMainWindow(parent),
 ui(new Ui::UEFITool),
@@ -167,13 +171,13 @@ void UEFITool::init()
     ui->finderMessagesListWidget->installEventFilter(this);
     ui->builderMessagesListWidget->installEventFilter(this);
 
-    // Detect UI dark mode
+    // Detect and set UI light or dark mode
 #if QT_VERSION_MAJOR >= 6
+#if QT_VERSION_MINOR < 5
 #if defined Q_OS_WIN
     QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", QSettings::NativeFormat);
     if (settings.value("AppsUseLightTheme", 1).toInt() == 0) {
         model->setMarkingDarkMode(true);
-        // TODO: remove this once default style gains dark theme support
         QApplication::setStyle(QStyleFactory::create("Fusion"));
         QApplication::setPalette(QApplication::style()->standardPalette());
     }
@@ -183,9 +187,29 @@ void UEFITool::init()
     if (color.lightness() < 127) { // TreeView has dark background
         model->setMarkingDarkMode(true);
     }
+#endif // defined Q_OS_WIN
+#else // QT_VERSION_MINOR >= 5
+    // Qt 6.5.0 added proper support for dark UI mode, including detection and notification on mode change
+    // It also supposed to work in all OSes, but still requires changing the default style on Windows from Vista to Fusion
+    auto styleHints = QGuiApplication::styleHints();
+    model->setMarkingDarkMode(styleHints->colorScheme() == Qt::ColorScheme::Dark);
+    connect(styleHints, SIGNAL(colorSchemeChanged(Qt::ColorScheme)), this, SLOT(updateUiForNewColorScheme(Qt::ColorScheme)));
+
+#if defined Q_OS_WIN
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
+    QApplication::setPalette(QApplication::style()->standardPalette());
 #endif
-#endif
+#endif // QT_VERSION_MINOR
+#endif // QT_VERSION_MAJOR
 }
+
+#if QT_VERSION_MAJOR >= 6 && QT_VERSION_MINOR >= 5
+void UEFITool::updateUiForNewColorScheme(Qt::ColorScheme scheme)
+{
+    model->setMarkingDarkMode(scheme == Qt::ColorScheme::Dark);
+    QApplication::setPalette(QApplication::style()->standardPalette());
+}
+#endif
 
 void UEFITool::populateUi(const QItemSelection &selected)
 {
@@ -281,8 +305,6 @@ void UEFITool::search()
     if (searchDialog->exec() != QDialog::Accepted)
         return;
     
-    QModelIndex rootIndex = model->index(0, 0);
-    
     int index = searchDialog->ui->tabWidget->currentIndex();
     if (index == 0) { // Hex pattern
         searchDialog->ui->hexEdit->setFocus();
@@ -296,7 +318,7 @@ void UEFITool::search()
             mode = SEARCH_MODE_BODY;
         else
             mode = SEARCH_MODE_ALL;
-        ffsFinder->findHexPattern(rootIndex, pattern, mode);
+        ffsFinder->findHexPattern(pattern, mode);
         showFinderMessages();
     }
     else if (index == 1) { // GUID
@@ -312,7 +334,7 @@ void UEFITool::search()
             mode = SEARCH_MODE_BODY;
         else
             mode = SEARCH_MODE_ALL;
-        ffsFinder->findGuidPattern(rootIndex, pattern, mode);
+        ffsFinder->findGuidPattern(pattern, mode);
         showFinderMessages();
     }
     else if (index == 2) { // Text string
@@ -327,7 +349,7 @@ void UEFITool::search()
             mode = SEARCH_MODE_BODY;
         else
             mode = SEARCH_MODE_ALL;
-        ffsFinder->findTextPattern(rootIndex, pattern, mode, searchDialog->ui->textUnicodeCheckBox->isChecked(),
+        ffsFinder->findTextPattern(pattern, mode, searchDialog->ui->textUnicodeCheckBox->isChecked(),
                                    (Qt::CaseSensitivity) searchDialog->ui->textCaseSensitiveCheckBox->isChecked());
         showFinderMessages();
     }
@@ -561,7 +583,7 @@ void UEFITool::about()
                        tr("<b>UEFITool %1.</b><br><br>"
                           "Copyright (c) 2013-2023, Nikolaj Schlej.<br><br>"
                           "Program icon made by <a href=https://www.behance.net/alzhidkov>Alexander Zhidkov</a>.<br><br>"
-                          "GUI uses QHexEdit2 library made by <a href=https://github.com/Simsys>Simsys</a>.<br>"
+                          "GUI uses QHexView made by <a href=https://github.com/Dax89>Antonio Davide</a>.<br>"
                           "Qt-less engine uses Bstrlib made by <a href=https://github.com/websnarf>Paul Hsieh</a>.<br>"
                           "Engine uses Tiano compression code made by <a href=https://github.com/tianocore>TianoCore developers</a>.<br>"
                           "Engine uses LZMA compression code made by <a href=https://www.7-zip.org/sdk.html>Igor Pavlov</a>.<br>"
