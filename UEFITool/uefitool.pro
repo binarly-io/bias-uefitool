@@ -62,11 +62,6 @@ HEADERS += uefitool.h \
  ../common/zlib/zlib.h \
  ../common/zlib/crc32.h \
  ../version.h \
-<<<<<<< HEAD
- qhexedit2/qhexedit.h \
- qhexedit2/chunks.h \
- qhexedit2/commands.h
-=======
  qhexview5/model/buffer/qhexbuffer.h \
  qhexview5/model/buffer/qdevicebuffer.h \
  qhexview5/model/buffer/qmemorybuffer.h \
@@ -81,7 +76,6 @@ HEADERS += uefitool.h \
  qhexview5/model/qhexoptions.h \
  qhexview5/model/qhexutils.h \
  qhexview5/qhexview.h
->>>>>>> upstream/new_engine
 
 SOURCES += uefitool_main.cpp \
  uefitool.cpp \
@@ -144,11 +138,6 @@ SOURCES += uefitool_main.cpp \
  ../common/zlib/trees.c \
  ../common/zlib/uncompr.c \
  ../common/zlib/zutil.c \
-<<<<<<< HEAD
- qhexedit2/qhexedit.cpp \
- qhexedit2/chunks.cpp \
- qhexedit2/commands.cpp
-=======
  qhexview5/model/buffer/qhexbuffer.cpp \
  qhexview5/model/buffer/qdevicebuffer.cpp \
  qhexview5/model/buffer/qmemorybuffer.cpp \
@@ -162,7 +151,6 @@ SOURCES += uefitool_main.cpp \
  qhexview5/model/qhexmetadata.cpp \
  qhexview5/model/qhexutils.cpp \
  qhexview5/qhexview.cpp 
->>>>>>> upstream/new_engine
 
 FORMS += uefitool.ui \
  searchdialog.ui \
