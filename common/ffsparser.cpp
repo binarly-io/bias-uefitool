@@ -4691,7 +4691,10 @@ make_partition_table_consistent:
                         UModelIndex partitionIndex = model->addItem(localOffset + partitions[i].ptEntry.Offset.Offset, Types::CpdPartition, Subtypes::ManifestCpdPartition, name, UString(), info, header, body, UByteArray(), Fixed, parent);
                         
                         // Parse data as extensions area
-                        parseCpdExtensionsArea(partitionIndex);
+			// Add the header size as a local offset
+			// Since the body starts after the
+			// header length
+                        parseCpdExtensionsArea(partitionIndex, header.size());
                     }
                 }
             }
@@ -4710,7 +4713,7 @@ make_partition_table_consistent:
                 UModelIndex partitionIndex = model->addItem(localOffset + partitions[i].ptEntry.Offset.Offset, Types::CpdPartition,  Subtypes::MetadataCpdPartition, name, UString(), info, UByteArray(), partition, UByteArray(), Fixed, parent);
                 
                 // Parse data as extensions area
-                parseCpdExtensionsArea(partitionIndex);
+                parseCpdExtensionsArea(partitionIndex, 0);
             }
             // It's a code
             else {
@@ -4746,7 +4749,7 @@ make_partition_table_consistent:
     return U_SUCCESS;
 }
 
-USTATUS FfsParser::parseCpdExtensionsArea(const UModelIndex & index)
+USTATUS FfsParser::parseCpdExtensionsArea(const UModelIndex & index, const UINT32 localOffset)
 {
     if (!index.isValid()) {
         return U_INVALID_PARAMETER;
@@ -4787,7 +4790,7 @@ USTATUS FfsParser::parseCpdExtensionsArea(const UModelIndex & index)
                                 infoHeader->UsageBitmap[12], infoHeader->UsageBitmap[13], infoHeader->UsageBitmap[14], infoHeader->UsageBitmap[15]);
                 
                 // Add tree item
-                extIndex = model->addItem(offset, Types::CpdExtension, 0, name, UString(), info, header, data, UByteArray(), Fixed, index);
+                extIndex = model->addItem(offset + localOffset, Types::CpdExtension, 0, name, UString(), info, header, data, UByteArray(), Fixed, index);
                 parseSignedPackageInfoData(extIndex);
             }
             // Parse IFWI Partition Manifest a bit further
@@ -4830,7 +4833,7 @@ USTATUS FfsParser::parseCpdExtensionsArea(const UModelIndex & index)
                 + UString("\nPartition hash: ") +  UString(hash.toHex().constData());
                 
                 // Add tree item
-                extIndex = model->addItem(offset, Types::CpdExtension, 0, name, UString(), info, UByteArray(), partition, UByteArray(), Fixed, index);
+                extIndex = model->addItem(offset + localOffset, Types::CpdExtension, 0, name, UString(), info, UByteArray(), partition, UByteArray(), Fixed, index);
                 if (msgHashSizeMismatch) {
                     msg(usprintf("%s: IFWI Partition Manifest hash size is %u, maximum allowed is %u, truncated", __FUNCTION__, attrHeader->HashSize, (UINT32)sizeof(attrHeader->CompletePartitionHash)), extIndex);
                 }
@@ -4855,12 +4858,12 @@ USTATUS FfsParser::parseCpdExtensionsArea(const UModelIndex & index)
                                 attrHeader->GlobalModuleId) + UString(hash.toHex().constData());
                 
                 // Add tree item
-                extIndex = model->addItem(offset, Types::CpdExtension, 0, name, UString(), info, UByteArray(), partition, UByteArray(), Fixed, index);
+                extIndex = model->addItem(offset + localOffset, Types::CpdExtension, 0, name, UString(), info, UByteArray(), partition, UByteArray(), Fixed, index);
             }
             // Parse everything else
             else {
                 // Add tree item, if needed
-                extIndex = model->addItem(offset, Types::CpdExtension, 0, name, UString(), info, UByteArray(), partition, UByteArray(), Fixed, index);
+                extIndex = model->addItem(offset + localOffset, Types::CpdExtension, 0, name, UString(), info, UByteArray(), partition, UByteArray(), Fixed, index);
             }
             
             // There needs to be a more generic way to do it, but it is fine for now
