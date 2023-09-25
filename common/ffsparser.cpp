@@ -4691,9 +4691,9 @@ make_partition_table_consistent:
                         UModelIndex partitionIndex = model->addItem(localOffset + partitions[i].ptEntry.Offset.Offset, Types::CpdPartition, Subtypes::ManifestCpdPartition, name, UString(), info, header, body, UByteArray(), Fixed, parent);
                         
                         // Parse data as extensions area
-			// Add the header size as a local offset
-			// Since the body starts after the
-			// header length
+                        // Add the header size as a local offset
+                        // Since the body starts after the
+                        // header length
                         parseCpdExtensionsArea(partitionIndex, header.size());
                     }
                 }
