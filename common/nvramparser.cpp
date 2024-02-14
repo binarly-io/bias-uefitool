@@ -671,6 +671,11 @@ USTATUS NvramParser::getStoreSize(const UByteArray & data, const UINT32 storeOff
     } else {
         return U_INVALID_PARAMETER; // Unreachable
     }
+
+    if (!storeSize) {
+        return U_INVALID_STORE_SIZE;
+    }
+
     return U_SUCCESS;
 }
 
