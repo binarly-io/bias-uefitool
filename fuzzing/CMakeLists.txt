@@ -88,11 +88,11 @@ ADD_EXECUTABLE(ffsparser_fuzzer ${PROJECT_SOURCES})
 
 
 IF(NOT USE_AFL_DRIVER)
-TARGET_COMPILE_OPTIONS(ffsparser_fuzzer PRIVATE -O1 -fno-omit-frame-pointer -g -ggdb3 -fsanitize=fuzzer,address,undefined -fsanitize-address-use-after-scope -fno-sanitize-recover=undefined)
-TARGET_LINK_LIBRARIES(ffsparser_fuzzer PRIVATE -fsanitize=fuzzer,address,undefined)
+TARGET_COMPILE_OPTIONS(ffsparser_fuzzer PRIVATE -O1 -fno-omit-frame-pointer -g -ggdb3 -fsanitize=fuzzer,address -fsanitize-address-use-after-scope -fno-sanitize-recover=undefined)
+TARGET_LINK_LIBRARIES(ffsparser_fuzzer PRIVATE -fsanitize=fuzzer,address)
 ELSE()
-TARGET_COMPILE_OPTIONS(ffsparser_fuzzer PRIVATE -O1 -fno-omit-frame-pointer -g -ggdb3 -fsanitize=address,undefined -fsanitize-coverage=trace-pc-guard -fsanitize-address-use-after-scope -fno-sanitize-recover=undefined)
-TARGET_LINK_LIBRARIES(ffsparser_fuzzer PRIVATE -fsanitize=address,undefined)
+TARGET_COMPILE_OPTIONS(ffsparser_fuzzer PRIVATE -O1 -fno-omit-frame-pointer -g -ggdb3 -fsanitize=address -fsanitize-coverage=trace-pc-guard -fsanitize-address-use-after-scope -fno-sanitize-recover=undefined)
+TARGET_LINK_LIBRARIES(ffsparser_fuzzer PRIVATE -fsanitize=address)
 ENDIF()
 
 IF(USE_QT)
