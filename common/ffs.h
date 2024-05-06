@@ -131,6 +131,8 @@ extern const UByteArray EFI_INTEL_FILE_SYSTEM2_GUID; // D6A1CD70-4B33-4994-A6EA-
 
 extern const UByteArray EFI_SONY_FILE_SYSTEM_GUID; // 4F494156-AED6-4D64-A537-B8A5557BCEEC
 
+extern const UByteArray EFI_HP_FILE_SYSTEM_GUID; // 372B56DF-CC9F-4817-AB97-0A10A92CEAA5
+
 // Vector of volume GUIDs with FFSv2-compatible files
 extern const std::vector<UByteArray> FFSv2Volumes;
 
