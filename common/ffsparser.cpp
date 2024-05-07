@@ -897,9 +897,10 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
             // Add tree item
             model->addItem(headerSize + paddingOffset, Types::Padding, getPaddingType(padding), name, UString(), info, UByteArray(), padding, UByteArray(), Fixed, index);
         }
-        
+
+        UINT32 dataSize = data.size();
         // Check that item is fully present in input
-        if (itemSize > (UINT32)data.size() || itemOffset + itemSize > (UINT32)data.size()) {
+        if (itemSize > dataSize || itemOffset + itemSize > dataSize) {
             // Mark the rest as padding and finish parsing
             UByteArray padding = data.mid(itemOffset);
             
@@ -909,8 +910,8 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
             
             // Add tree item
             UModelIndex paddingIndex = model->addItem(headerSize + itemOffset, Types::Padding, getPaddingType(padding), name, UString(), info, UByteArray(), padding, UByteArray(), Fixed, index);
-            msg(usprintf("%s: one of objects inside overlaps the end of data", __FUNCTION__), paddingIndex);
-            
+            msg(usprintf("%s: one of objects inside overlaps the end of data (itemSize: %Xh, dataSize: %Xh)", __FUNCTION__, itemSize, dataSize), paddingIndex);
+
             // Update variables
             prevItemOffset = itemOffset;
             prevItemSize = (UINT32)padding.size();
@@ -920,6 +921,18 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
         // Parse current volume header
         if (itemType == Types::Volume) {
             UModelIndex volumeIndex;
+
+            // some HP firmware contains overlapping volumes
+            // here we have an exception to to prevent overlapping
+            // and extract as many modules as possible
+            // (64 is header size, sanity check for itemAltSize)
+            if (itemAltSize > 64 && itemSize > itemAltSize) {
+                UByteArray guid = data.mid(itemOffset + 16, 16);
+                if (guid == EFI_HP_FILE_SYSTEM_GUID) {
+                    itemSize = itemAltSize;
+                }
+            }
+
             UByteArray volume = data.mid(itemOffset, itemSize);
             result = parseVolumeHeader(volume, headerSize + itemOffset, index, volumeIndex);
             if (result) {
