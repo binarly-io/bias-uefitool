@@ -943,7 +943,7 @@ void UEFITool::readSettings()
     // Set monospace font
     QString fontName;
     int fontSize;
-#if defined Q_OS_OSX
+#if defined Q_OS_MACOS
     fontName = settings.value("mainWindow/fontName", QString("Menlo")).toString();
     fontSize = settings.value("mainWindow/fontSize", 10).toInt();
 #elif defined Q_OS_WIN
