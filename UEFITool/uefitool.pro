@@ -39,6 +39,7 @@ HEADERS += uefitool.h \
  ../common/treeitem.h \
  ../common/intel_fit.h \
  ../common/intel_microcode.h \
+ ../common/amd_microcode.h \
  ../common/treemodel.h \
  ../common/LZMA/LzmaCompress.h \
  ../common/LZMA/LzmaDecompress.h \

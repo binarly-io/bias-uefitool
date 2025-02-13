@@ -60,6 +60,7 @@ SET(PROJECT_SOURCES
  ../common/ffs.cpp
  ../common/peimage.cpp
  ../common/utility.cpp
+ ../common/amd_microcode.cpp
  ../common/ffsbuilder.cpp
  ../common/ffsparser.cpp
  ../common/ffsreport.cpp

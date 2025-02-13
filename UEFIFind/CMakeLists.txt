@@ -22,6 +22,7 @@ SET(PROJECT_SOURCES
  ../common/treeitem.cpp
  ../common/treemodel.cpp
  ../common/utility.cpp
+ ../common/amd_microcode.cpp
  ../common/LZMA/LzmaDecompress.c
  ../common/LZMA/SDK/C/Bra.c
  ../common/LZMA/SDK/C/Bra86.c
