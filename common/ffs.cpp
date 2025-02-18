@@ -148,8 +148,12 @@ extern const UByteArray AMI_ROM_HOLE_FILE_GUID_15 //05CA020B-0FC1-11DC-9011-0017
 ("\x0B\x02\xCA\x05\xC1\x0F\xDC\x11\x90\x11\x00\x17\x31\x53\xEB\xA8", 16);
 
 // AMD compressed
-extern const UByteArray AMD_COMPRESSED_GUID //20BC8AC9-94D1-4208-AB28-5D673FD73487
+extern const UByteArray AMD_COMPRESSED_GUID // 20BC8AC9-94D1-4208-AB28-5D673FD73487
 ("\xC9\x8A\xBC\x20\xD1\x94\x08\x42\xAB\x28\x5D\x67\x3F\xD7\x34\x87", 16);
+
+// TE/PE files containing AMD microcode
+extern const UByteArray AMD_MICROCODE_FILE_GUID // DE3E049C-A218-4891-8658-5FC0FA84C788
+("\x9C\x04\x3E\xDE\x18\xA2\x91\x48\x86\x58\x5F\xC0\xFA\x84\xC7\x88", 16);
 
 const std::vector<UByteArray> FFSv2Volumes({
     EFI_FIRMWARE_FILE_SYSTEM_GUID,

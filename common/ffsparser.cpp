@@ -3404,6 +3404,10 @@ USTATUS FfsParser::parsePeImageSectionBody(const UModelIndex & index)
     }
     
     model->addInfo(index, info);
+
+    // Search for AMD Microcode in certain PE images
+    searchForAmdMicrocode(index);
+
     return U_SUCCESS;
 }
 
@@ -3451,6 +3455,9 @@ USTATUS FfsParser::parseTeImageSectionBody(const UModelIndex & index)
     // Add TE info
     model->addInfo(index, info);
     
+    // Search for AMD Microcode in certain TE images
+    searchForAmdMicrocode(index);
+
     return U_SUCCESS;
 }
 
@@ -4176,6 +4183,52 @@ USTATUS FfsParser::parseMicrocodeVolumeBody(const UModelIndex & index)
             break;
     }
     return U_SUCCESS;
+}
+
+USTATUS FfsParser::searchForAmdMicrocode(const UModelIndex &index) {
+    UModelIndex fileIndex = model->parent(index);
+    if (!fileIndex.isValid()) {
+        return U_INVALID_PARAMETER;
+    }
+
+    if (model->type(fileIndex) != Types::File) {
+        return U_INVALID_PARAMETER;
+    }
+
+    UByteArray fileHeader = model->header(fileIndex);
+    if (fileHeader.size() < sizeof(EFI_GUID)) {
+        return U_INVALID_PARAMETER;
+    }
+
+    USTATUS status = U_ITEM_NOT_FOUND;
+
+    UByteArray fileGuid = UByteArray(fileHeader.constData(), sizeof(EFI_GUID));
+    if (fileGuid != AMD_MICROCODE_FILE_GUID) {
+        return status;
+    }
+
+    UByteArray body = model->body(index);
+    UINT32 dataSize = body.size();
+    UINT32 minSize = sizeof(AMD_MICROCODE_HEADER) + 0x44;
+    if (dataSize < minSize) {
+        return U_INVALID_PARAMETER;
+    }
+
+    for (UINT32 offset = 0; offset < dataSize - minSize; offset++) {
+        const AMD_MICROCODE_HEADER* ucodeHeader = (const AMD_MICROCODE_HEADER*)(body.constData() + offset);
+        if (!microcodeHeaderValidAmd(ucodeHeader)) {
+            continue;
+        }
+
+        UModelIndex microcodeIndex;
+        if (parseAmdMicrocodeHeader(body.mid(offset), offset, index.parent(), microcodeIndex) == U_SUCCESS) {
+            // we might find several microcode items in body, so keep scanning
+            msg(usprintf("%s: found microcode in PE/TE file", __FUNCTION__), microcodeIndex);
+            status = U_SUCCESS;
+        }
+    }
+
+    return status;
 }
 
 USTATUS FfsParser::parseAmdMicrocodeHeader(const UByteArray & microcode, const UINT32 localOffset, const UModelIndex & parent, UModelIndex & index)

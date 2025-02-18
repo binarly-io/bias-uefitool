@@ -178,6 +178,7 @@ private:
     USTATUS parseIntelMicrocodeHeader(const UByteArray & store, const UINT32 localOffset, const UModelIndex & parent, UModelIndex & index);
     bool microcodeHeaderValid(const INTEL_MICROCODE_HEADER* ucodeHeader);
 
+    USTATUS searchForAmdMicrocode(const UModelIndex & index);
     USTATUS parseAmdMicrocodeHeader(const UByteArray & store, const UINT32 localOffset, const UModelIndex & parent, UModelIndex & index);
     bool microcodeHeaderValidAmd(const AMD_MICROCODE_HEADER* ucodeHeader);
 
