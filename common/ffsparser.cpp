@@ -4750,7 +4750,7 @@ USTATUS FfsParser::parseCpdRegion(const UByteArray & region, const UINT32 localO
         UINT32 offset = 0;
         UINT32 length = 0xFFFFFFFF; // Special guardian value
 
-        if (region.size() < partitions[i].ptEntry.Offset.Offset) {
+        if (region.size() <= partitions[i].ptEntry.Offset.Offset) {
             break;
         }
 

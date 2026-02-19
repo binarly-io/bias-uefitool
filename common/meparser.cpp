@@ -120,7 +120,7 @@ USTATUS MeParser::parseFptRegion(const UByteArray & region, const UModelIndex & 
     // Check region size again
     UINT32 ptBodySize = ptHeader->NumEntries * sizeof(FPT_HEADER_ENTRY);
     UINT32 ptSize = romBypassVectorSize + sizeof(FPT_HEADER) + ptBodySize;
-    if ((UINT32)region.size() < ptSize) {
+    if ((UINT32)region.size() <= ptSize) {
         msg(usprintf("%s: ME region too small to fit the FPT partition table", __FUNCTION__), parent);
         return U_INVALID_ME_PARTITION_TABLE;
     }
@@ -467,7 +467,7 @@ make_partition_table_consistent:
     // Partition map is consistent
     for (size_t i = 0; i < partitions.size(); i++) {
         // Sanity check
-        if (partitions[i].ptEntry.Offset > region.size())
+        if (partitions[i].ptEntry.Offset >= region.size())
             break;
         UByteArray partition = region.mid(partitions[i].ptEntry.Offset, partitions[i].ptEntry.Size);
         if (partitions[i].type == Types::IfwiPartition) {
