@@ -183,6 +183,12 @@ USTATUS MeParser::parseFptRegion(const UByteArray & region, const UModelIndex & 
     UINT32 offset = (UINT32)header.size();
     UINT32 numEntries = ptHeader->NumEntries;
     const FPT_HEADER_ENTRY* firstPtEntry = (const FPT_HEADER_ENTRY*)(region.constData() + offset);
+
+    if ((UINT32)offset + sizeof(const FPT_HEADER_ENTRY*) * numEntries > region.size()) {
+        msg(usprintf("%s: Corrupted ME region, too many header entries", __FUNCTION__), parent);
+        return U_INVALID_ME_PARTITION_TABLE;
+    }
+
     for (UINT32 i = 0; i < numEntries; i++) {
         // Populate entry header
         const FPT_HEADER_ENTRY* ptEntry = firstPtEntry + i;
@@ -249,9 +255,9 @@ make_partition_table_consistent:
     // Check for intersections/paddings between partitions
     for (size_t i = 1; i < partitions.size(); i++) {
         UINT32 previousPartitionEnd = partitions[i - 1].ptEntry.Offset + partitions[i - 1].ptEntry.Size;
-        
         // Check that current region is fully present in the image
-        if ((UINT32)partitions[i].ptEntry.Offset + (UINT32)partitions[i].ptEntry.Size > (UINT32)region.size()) {
+        if (partitions[i].ptEntry.Offset > UINT_MAX - partitions[i].ptEntry.Size ||
+            (UINT32)partitions[i].ptEntry.Offset + (UINT32)partitions[i].ptEntry.Size > (UINT32)region.size()) {
             if ((UINT32)partitions[i].ptEntry.Offset >= (UINT32)region.size()) {
                 msg(usprintf("%s: FPT partition is located outside of the opened image, skipped", __FUNCTION__), partitions[i].index);
                 partitions.erase(partitions.begin() + i);
@@ -460,6 +466,9 @@ make_partition_table_consistent:
     
     // Partition map is consistent
     for (size_t i = 0; i < partitions.size(); i++) {
+        // Sanity check
+        if (partitions[i].ptEntry.Offset > region.size())
+            break;
         UByteArray partition = region.mid(partitions[i].ptEntry.Offset, partitions[i].ptEntry.Size);
         if (partitions[i].type == Types::IfwiPartition) {
             UModelIndex partitionIndex;
@@ -597,7 +606,8 @@ make_partition_table_consistent:
         UINT32 previousPartitionEnd = partitions[i - 1].ptEntry.Offset + partitions[i - 1].ptEntry.Size;
         
         // Check that current region is fully present in the image
-        if ((UINT32)partitions[i].ptEntry.Offset + (UINT32)partitions[i].ptEntry.Size > (UINT32)region.size()) {
+        if (partitions[i].ptEntry.Offset > UINT_MAX - partitions[i].ptEntry.Size ||
+            (UINT32)partitions[i].ptEntry.Offset + (UINT32)partitions[i].ptEntry.Size > (UINT32)region.size()) {
             if ((UINT32)partitions[i].ptEntry.Offset >= (UINT32)region.size()) {
                 msg(usprintf("%s: IFWI partition is located outside of the opened image, skipped", __FUNCTION__), index);
                 partitions.erase(partitions.begin() + i);

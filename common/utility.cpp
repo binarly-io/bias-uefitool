@@ -205,7 +205,11 @@ USTATUS decompress(const UByteArray & compressedData, const UINT8 compressionTyp
     UINT8* scratch;
     UINT32 scratchSize = 0;
     const EFI_TIANO_HEADER* header;
-    
+
+    if (compressedData.size() < 4) {
+        return U_BUFFER_TOO_SMALL;
+    }
+
     // For all but LZMA dictionary size is 0
     dictionarySize = 0;
     
@@ -232,7 +236,11 @@ USTATUS decompress(const UByteArray & compressedData, const UINT8 compressionTyp
             // Get info function is the same for both algorithms
             if (U_SUCCESS != EfiTianoGetInfo(data, dataSize, &decompressedSize, &scratchSize))
                 return U_STANDARD_DECOMPRESSION_FAILED;
-            
+
+            // Check for suspiciously large decompressed size
+            if (decompressedSize > INT32_MAX / 4)
+                return U_STANDARD_DECOMPRESSION_FAILED;
+
             // Allocate memory
             decompressed = (UINT8*)malloc(decompressedSize);
             efiDecompressed = (UINT8*)malloc(decompressedSize);
@@ -243,18 +251,14 @@ USTATUS decompress(const UByteArray & compressedData, const UINT8 compressionTyp
                 free(scratch);
                 return U_STANDARD_DECOMPRESSION_FAILED;
             }
-            
+
             // Decompress section data using both algorithms
             USTATUS result = U_SUCCESS;
             // Try Tiano
             USTATUS TianoResult = TianoDecompress(data, dataSize, decompressed, decompressedSize, scratch, scratchSize);
             // Try EFI 1.1
             USTATUS EfiResult = EfiDecompress(data, dataSize, efiDecompressed, decompressedSize, scratch, scratchSize);
-            
-            if (decompressedSize > INT32_MAX) {
-                result = U_STANDARD_DECOMPRESSION_FAILED;
-            }
-            else if (EfiResult == U_SUCCESS && TianoResult == U_SUCCESS) { // Both decompressions are OK
+            if (EfiResult == U_SUCCESS && TianoResult == U_SUCCESS) { // Both decompressions are OK
                 algorithm = COMPRESSION_ALGORITHM_UNDECIDED;
                 decompressedData = UByteArray((const char*)decompressed, (int)decompressedSize);
                 efiDecompressedData = UByteArray((const char*)efiDecompressed, (int)decompressedSize);
@@ -288,6 +292,7 @@ USTATUS decompress(const UByteArray & compressedData, const UINT8 compressionTyp
             if (U_SUCCESS != LzmaGetInfo(data, dataSize, &decompressedSize)) {
                 // Get info as Intel legacy LZMA section
                 data += sizeof(UINT32);
+                dataSize -= sizeof(UINT32);
                 if (U_SUCCESS != LzmaGetInfo(data, dataSize, &decompressedSize)) {
                     return U_CUSTOMIZED_DECOMPRESSION_FAILED;
                 }

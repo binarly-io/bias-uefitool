@@ -70,7 +70,12 @@ USTATUS FitParser::parseFit(const UModelIndex & index)
         msg(usprintf("%s: not enough space to contain the whole FIT table", __FUNCTION__), fitIndex);
         return U_INVALID_FIT;
     }
-    
+
+    if (fitSize == 0) {
+        msg(usprintf("%s: FIT header size is 0", __FUNCTION__));
+        return U_INVALID_FIT;
+    }
+
     // Check FIT checksum, if present
     if (fitHeader->ChecksumValid) {
         // Calculate FIT entry checksum
@@ -221,6 +226,10 @@ void FitParser::findFitRecursive(const UModelIndex & index, UModelIndex & found,
     UByteArray lastVtfBody = model->body(ffsParser->lastVtf);
     UINT64 fitSignatureValue = INTEL_FIT_SIGNATURE;
     UByteArray fitSignature((const char*)&fitSignatureValue, sizeof(fitSignatureValue));
+
+    if (lastVtfBody.size() < INTEL_FIT_POINTER_OFFSET)
+        return;
+
     UINT32 storedFitAddress = *(const UINT32*)(lastVtfBody.constData() + lastVtfBody.size() - INTEL_FIT_POINTER_OFFSET);
     for (INT32 offset = (INT32)model->body(index).indexOf(fitSignature);
          offset >= 0;
@@ -701,14 +710,20 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                                    ibbs_body->dma_protection_limit1(),
                                    ibbs_body->ibb_entry_point(),
                                    ibbs_body->num_ibb_segments());
-                
+
+                // According to the Intel specification, the hash could be either SHA1, SHA256, SM3_256, or SHA384.
+                // However, the current definition of the Katai struct only supports SHA256.
+                // Therefore, instead of relying on the size contained in the firmware, we use a fixed size.
+
+                // TODO: update kaitai definitions instead (to support 20, 32, 48 bytes)
+                int post_ibb_len_hash = 32;
                 // Check for non-empty PostIbbHash
                 if (ibbs_body->post_ibb_hash()->len_hash() == 0) {
                     bpInfo += UString("PostIBB Hash: N/A\n");
                 }
                 else {
                     // Add postIbbHash protected range
-                    UByteArray postIbbHash(ibbs_body->post_ibb_hash()->hash().data(), ibbs_body->post_ibb_hash()->len_hash());
+                    UByteArray postIbbHash(ibbs_body->post_ibb_hash()->hash().data(), post_ibb_len_hash);
                     if (postIbbHash.count('\x00') != postIbbHash.size()
                         && postIbbHash.count('\xFF') != postIbbHash.size()) {
                         PROTECTED_RANGE range = {};
@@ -720,15 +735,15 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                     
                     // Add PostIbbHash
                     bpInfo += UString("PostIBB Hash (") + hashTypeToUString(ibbs_body->post_ibb_hash()->hash_algorithm_id()) + "): ";
-                    for (UINT16 i = 0; i < ibbs_body->post_ibb_hash()->len_hash(); i++) {
+                    for (UINT16 i = 0; i < post_ibb_len_hash; i++) {
                         bpInfo += usprintf("%02X", (UINT8)ibbs_body->post_ibb_hash()->hash().data()[i]);
                     }
                     bpInfo += "\n";
                 }
-                
+                int ibb_len_hash = 32;
                 // Add IbbHash
                 bpInfo += UString("IBB Hash (") + hashTypeToUString(ibbs_body->ibb_hash()->hash_algorithm_id()) + "): ";
-                for (UINT16 j = 0; j < ibbs_body->ibb_hash()->len_hash(); j++) {
+                for (UINT16 j = 0; j < ibb_len_hash; j++) {
                     bpInfo += usprintf("%02X", (UINT8)ibbs_body->ibb_hash()->hash().data()[j]);
                 }
                 bpInfo += "\n";
