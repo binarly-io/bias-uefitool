@@ -535,7 +535,7 @@ USTATUS NvramParser::findNextStore(const UModelIndex & index, const UByteArray &
             if (offset < sizeof(UINT32))
                 continue;
 
-            if(offset + sizeof(EVSA_STORE_ENTRY) > dataSize){
+            if (offset + sizeof(EVSA_STORE_ENTRY) > dataSize) {
                 return U_STORES_NOT_FOUND;
             }
             
@@ -1061,7 +1061,7 @@ USTATUS NvramParser::parseEvsaStoreHeader(const UByteArray & store, const UINT32
         return U_SUCCESS;
     }
 
-    // Check header size
+    // Check that header size does not exceed store size
     if (evsaStoreHeader->Header.Size > evsaStoreHeader->StoreSize) {
         msg(usprintf("%s: EVSA header size is larger than store size", __FUNCTION__), parent);
         return U_SUCCESS;
@@ -1153,7 +1153,7 @@ USTATUS NvramParser::parseCmdbStoreHeader(const UByteArray & store, const UINT32
     const PHOENIX_CMDB_HEADER* cmdbHeader = (const PHOENIX_CMDB_HEADER*)store.constData();
 
     if (cmdbHeader->TotalSize > cmdbSize) {
-        msg(usprintf("%s: CMDB header total size %Xh (%u) is greater than CMBD store size %Xh (%u)", __FUNCTION__,
+        msg(usprintf("%s: CMDB header total size %Xh (%u) is greater than CMDB store size %Xh (%u)", __FUNCTION__,
                      cmdbHeader->TotalSize, cmdbHeader->TotalSize,
                      cmdbSize, cmdbSize), parent);
         return U_SUCCESS;
@@ -1478,7 +1478,7 @@ USTATUS NvramParser::parseVssStoreBody(const UModelIndex & index, UINT8 alignmen
                     if ((i * 2) >= tmpUnparsedSize) {
                         variableSize = 0;
                     }
-                    else{
+                    else {
                         i = sizeof(VSS_INTEL_VARIABLE_HEADER) + 2 * (i + 1);
                         i = i < variableSize ? i : variableSize;
 
@@ -1803,7 +1803,7 @@ USTATUS NvramParser::parseEvsaStoreBody(const UModelIndex & index)
         else if ((entryHeader->Type == NVRAM_EVSA_ENTRY_TYPE_DATA1 ||
                   entryHeader->Type == NVRAM_EVSA_ENTRY_TYPE_DATA2 ||
                   entryHeader->Type == NVRAM_EVSA_ENTRY_TYPE_DATA_INVALID) &&
-                 offset + sizeof(EVSA_DATA_ENTRY) <= data.size()){
+                 offset + sizeof(EVSA_DATA_ENTRY) <= data.size()) {
             const EVSA_DATA_ENTRY* dataHeader = (const EVSA_DATA_ENTRY*)entryHeader;
             // Check for extended header
             UINT32 headerSize = sizeof(EVSA_DATA_ENTRY);

@@ -712,7 +712,7 @@ USTATUS FitParser::parseFitEntryBootGuardBootPolicy(const UByteArray & bootPolic
                                    ibbs_body->num_ibb_segments());
 
                 // According to the Intel specification, the hash could be either SHA1, SHA256, SM3_256, or SHA384.
-                // However, the current definition of the Katai struct only supports SHA256.
+                // However, the current definition of the Kaitai struct only supports SHA256.
                 // Therefore, instead of relying on the size contained in the firmware, we use a fixed size.
 
                 // TODO: update kaitai definitions instead (to support 20, 32, 48 bytes)
