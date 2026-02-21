@@ -16,7 +16,7 @@ SET(PROJECT_FORMS
  gotoaddressdialog.ui
  )
 
-SET(PROJECT_HEADERS 
+SET(PROJECT_HEADERS
  uefitool.h
  hexspinbox.h
  searchdialog.h
@@ -26,7 +26,7 @@ SET(PROJECT_HEADERS
  qhexview5/qhexview.h
 )
 
-SET(PROJECT_SOURCES 
+SET(PROJECT_SOURCES
  icons/uefitool.icns
  uefitool.rc
  uefitool_main.cpp
@@ -106,7 +106,7 @@ SET(PROJECT_SOURCES
  ../common/zlib/zutil.c
 )
 
-QT_ADD_RESOURCES(PROJECT_SOURCES 
+QT_ADD_RESOURCES(PROJECT_SOURCES
  uefitool.qrc
 )
 
