@@ -4208,7 +4208,7 @@ USTATUS FfsParser::searchForAmdMicrocode(const UModelIndex &index) {
     }
 
     UByteArray body = model->body(index);
-    UINT32 dataSize = body.size();
+    UINT32 dataSize = (UINT32)body.size();
     UINT32 minSize = sizeof(AMD_MICROCODE_HEADER) + 0x44;
     if (dataSize < minSize) {
         return U_INVALID_PARAMETER;

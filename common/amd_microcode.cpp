@@ -30,9 +30,9 @@ UINT32 getSizeMicrocodeAmd(const AMD_MICROCODE_HEADER *ucodeHeader) {
         microcodeLen = 0x980;
     } else if (cpuIdByte == 0x70 || cpuIdByte == 0x73) {
         microcodeLen = 0xD60;
-    } else if (cpuIdByte >= 0x80 && cpuIdByte <= 0x83 || cpuIdByte >= 0x85 && cpuIdByte <= 0x8A) {
+    } else if ((cpuIdByte >= 0x80 && cpuIdByte <= 0x83) || (cpuIdByte >= 0x85 && cpuIdByte <= 0x8A)) {
         microcodeLen = 0xC80;
-    } else if (cpuIdByte >= 0xA0 && cpuIdByte <= 0xA7 || cpuIdByte == 0xAA) {
+    } else if ((cpuIdByte >= 0xA0 && cpuIdByte <= 0xA7) || cpuIdByte == 0xAA) {
         microcodeLen = 0x15C0;
     } else if (cpuIdByte == 0xB4) {
         microcodeLen = 0x3820;
