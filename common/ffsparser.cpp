@@ -4424,6 +4424,12 @@ USTATUS FfsParser::parseBpdtRegion(const UByteArray & region, const UINT32 local
     // Populate partition table header
     const BPDT_HEADER* ptHeader = (const BPDT_HEADER*)(region.constData());
     
+    // Check numEntries to be sane
+    if (ptHeader->NumEntries >= 0x100) {
+        msg(usprintf("%s: too many BPDT partition table entries", __FUNCTION__), parent);
+        return U_INVALID_ME_PARTITION_TABLE;
+    }
+    
     // Check region size again
     UINT32 ptBodySize = ptHeader->NumEntries * sizeof(BPDT_ENTRY);
     UINT32 ptSize = sizeof(BPDT_HEADER) + ptBodySize;

@@ -117,6 +117,12 @@ USTATUS MeParser::parseFptRegion(const UByteArray & region, const UModelIndex & 
         ptHeader = (const FPT_HEADER*)(region.constData() + romBypassVectorSize);
     }
     
+    // Check numEntries to be sane
+    if (ptHeader->NumEntries >= 0x100) {
+        msg(usprintf("%s: too many FPT partition table entries", __FUNCTION__), parent);
+        return U_INVALID_ME_PARTITION_TABLE;
+    }
+    
     // Check region size again
     UINT32 ptBodySize = ptHeader->NumEntries * sizeof(FPT_HEADER_ENTRY);
     UINT32 ptSize = romBypassVectorSize + sizeof(FPT_HEADER) + ptBodySize;
