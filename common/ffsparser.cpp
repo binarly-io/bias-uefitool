@@ -1844,24 +1844,31 @@ USTATUS FfsParser::parseFileHeader(const UByteArray & file, const UINT32 localOf
     }
     
     // Get file body
-    UByteArray body = file.mid(header.size());
-
-    if (body.size() < sizeof(UINT16)) {
-        return U_INVALID_FILE;
+    UByteArray body;
+    // Zero-body-sized files are OK per UEFI PI spec
+    if (file.size() > header.size()) {
+        body = file.mid(header.size());
     }
 
     // Check for file tail presence
     UByteArray tail;
     bool msgInvalidTailValue = false;
+    bool msgTailedFileTooSmall = false;
     if (volumeRevision == 1 && (fileHeader->Attributes & FFS_ATTRIB_TAIL_PRESENT)) {
-        //Check file tail;
-        UINT16 tailValue = *(UINT16*)body.right(sizeof(UINT16)).constData();
-        if (fileHeader->IntegrityCheck.TailReference != (UINT16)~tailValue)
-            msgInvalidTailValue = true;
-        
-        // Get tail and remove it from file body
-        tail = body.right(sizeof(UINT16));
-        body = body.left(body.size() - sizeof(UINT16));
+        // Check if the file actually has at least 2 bytes of body
+        if (body.size() < sizeof(UINT16)) {
+            msgTailedFileTooSmall = true;
+        }
+        else {
+            // Check file tail;
+            UINT16 tailValue = *(UINT16*)body.right(sizeof(UINT16)).constData();
+            if (fileHeader->IntegrityCheck.TailReference != (UINT16)~tailValue)
+                msgInvalidTailValue = true;
+
+            // Get tail and remove it from file body
+            tail = body.right(sizeof(UINT16));
+            body = body.left(body.size() - sizeof(UINT16));
+        }
     }
     
     // Check header checksum
@@ -1874,9 +1881,11 @@ USTATUS FfsParser::parseFileHeader(const UByteArray & file, const UINT32 localOf
     // Check data checksum
     // Data checksum must be calculated
     bool msgInvalidDataChecksum = false;
+    bool msgDataChecksumForEmptyFile = false;
     UINT8 calculatedData = 0;
     if (fileHeader->Attributes & FFS_ATTRIB_CHECKSUM) {
-        calculatedData = calculateChecksum8((const UINT8*)body.constData(), (UINT32)body.size());
+        if (body.size() == 0) msgDataChecksumForEmptyFile = true;
+        else calculatedData = calculateChecksum8((const UINT8*)body.constData(), (UINT32)body.size());
     }
     // Data checksum must be one of predefined values
     else if (volumeRevision == 1) {
@@ -1885,8 +1894,8 @@ USTATUS FfsParser::parseFileHeader(const UByteArray & file, const UINT32 localOf
     else {
         calculatedData = FFS_FIXED_CHECKSUM2;
     }
-    
-    if (fileHeader->IntegrityCheck.Checksum.File != calculatedData) {
+
+    if (body.size() > 0 && fileHeader->IntegrityCheck.Checksum.File != calculatedData) {
         msgInvalidDataChecksum = true;
     }
     
@@ -1971,7 +1980,11 @@ USTATUS FfsParser::parseFileHeader(const UByteArray & file, const UINT32 localOf
         msg(usprintf("%s: invalid tail value %04Xh", __FUNCTION__, *(const UINT16*)tail.constData()), index);
     if (msgUnknownType)
         msg(usprintf("%s: unknown file type %02Xh", __FUNCTION__, fileHeader->Type), index);
-    
+    if (msgTailedFileTooSmall)
+        msg(usprintf("%s: tailed file too small", __FUNCTION__), index);
+    if (msgDataChecksumForEmptyFile)
+        msg(usprintf("%s: data checksum attribute set for empty file", __FUNCTION__), index);
+
     return U_SUCCESS;
 }
 
@@ -3470,7 +3483,7 @@ USTATUS FfsParser::performSecondPass(const UModelIndex & index)
     
     // Check for compressed lastVtf
     if (model->compressed(lastVtf)) {
-        msg(usprintf("%s: the last VTF appears inside compressed item, the image may be damaged", __FUNCTION__), lastVtf);
+        msg(usprintf("%s: the last VTF appears inside compressed item", __FUNCTION__), lastVtf);
         return U_SUCCESS;
     }
     
@@ -3598,7 +3611,11 @@ USTATUS FfsParser::addInfoRecursive(const UModelIndex & index)
     // Sanity check
     if (!index.isValid())
         return U_INVALID_PARAMETER;
-    
+
+    // Warn about tree items of zero size
+    if (model->header(index).size() + model->body(index).size() + model->tail(index).size() == 0)
+        msg(usprintf("%s: tree item of zero size", __FUNCTION__), index);
+
     // Add offset
     model->addInfo(index, usprintf("Offset: %Xh\n", model->offset(index)), false);
     
@@ -3610,7 +3627,7 @@ USTATUS FfsParser::addInfoRecursive(const UModelIndex & index)
         if (address <= 0xFFFFFFFFUL) {
             UINT32 headerSize = (UINT32)model->header(index).size();
             if (headerSize) {
-                model->addInfo(index, usprintf("Data address: %08Xh\n", (UINT32)address + headerSize),false);
+                if (!model->hasEmptyBody(index)) model->addInfo(index, usprintf("Data address: %08Xh\n", (UINT32)address + headerSize), false);
                 model->addInfo(index, usprintf("Header address: %08Xh\n", (UINT32)address), false);
             }
             else {
@@ -4208,7 +4225,7 @@ USTATUS FfsParser::searchForAmdMicrocode(const UModelIndex &index) {
     }
 
     UByteArray body = model->body(index);
-    UINT32 dataSize = body.size();
+    UINT32 dataSize = (UINT32)body.size();
     UINT32 minSize = sizeof(AMD_MICROCODE_HEADER) + 0x44;
     if (dataSize < minSize) {
         return U_INVALID_PARAMETER;
@@ -4410,6 +4427,12 @@ USTATUS FfsParser::parseBpdtRegion(const UByteArray & region, const UINT32 local
     
     // Populate partition table header
     const BPDT_HEADER* ptHeader = (const BPDT_HEADER*)(region.constData());
+    
+    // Check numEntries to be sane
+    if (ptHeader->NumEntries >= 0x100) {
+        msg(usprintf("%s: too many BPDT partition table entries", __FUNCTION__), parent);
+        return U_INVALID_ME_PARTITION_TABLE;
+    }
     
     // Check region size again
     UINT32 ptBodySize = ptHeader->NumEntries * sizeof(BPDT_ENTRY);
