@@ -868,6 +868,69 @@ extern const UByteArray AMD_COMPRESSED_GUID; // 20BC8AC9-94D1-4208-AB28-5D673FD7
 //
 extern const UByteArray AMD_MICROCODE_FILE_GUID; // DE3E049C-A218-4891-8658-5FC0FA84C788
 
+//
+// Insyde Flash Device Map
+//
+#define INSYDE_FLASH_DEVICE_MAP_SIGNATURE 0x4D444648 // HFDM
+
+typedef struct _INSYDE_FLASH_DEVICE_MAP_HEADER {
+  UINT32 Signature;
+  UINT32 Size;
+  UINT32 DataOffset;
+  UINT32 EntrySize;
+  UINT8  EntryFormat;
+  UINT8  Revision;
+  UINT8  ExtensionCount;
+  UINT8  Checksum;
+  UINT64 FdBaseAddress;
+//INSYDE_FLASH_DEVICE_MAP_EXTENSION Extensions[ExtensionCount];
+} INSYDE_FLASH_DEVICE_MAP_HEADER;
+
+typedef struct _INSYDE_FLASH_DEVICE_MAP_EXTENSION {
+  UINT16 EntryOffset;
+  UINT16 EntryCount;
+} INSYDE_FLASH_DEVICE_MAP_EXTENSION;
+
+typedef struct _INSYDE_FLASH_DEVICE_MAP_ENTRY {
+  EFI_GUID RegionTypeGuid;
+  UINT8    RegionId[16];
+  UINT64   RegionOffset;
+  UINT64   RegionSize;
+  UINT32   Attributes;
+//UINT8    Hash[]; // Size depends on EntryFormat and EntrySize of the header
+} INSYDE_FLASH_DEVICE_MAP_ENTRY;
+
+typedef struct _INSYDE_FLASH_DEVICE_MAP_BOARD_ID_MAP {
+  UINT32 BoardIdIndex;
+  UINT32 BoardIdCount;
+//UINT64 BoardIds[Count];
+} INSYDE_FLASH_DEVICE_MAP_BOARD_ID_MAP;
+
+#define INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MODIFIABLE 0x00000001
+
+extern const UByteArray INSYDE_FLASH_MAP_REGION_BOOT_FV_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_BVDT_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_EC_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_FTW_BACKUP_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_FTW_STATE_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_FV_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_FLASH_DEVICE_MAP_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_LOGO_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_MICROCODE_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_MSDM_TABLE_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_MULTI_CONFIG_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_VAR_DEFAULT_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_SMBIOS_UPDATE_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_VAR_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_UNKNOWN_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_UNUSED_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_USB_OPTION_ROM_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_DXE_FV_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_PEI_FV_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_UNSIGNED_FV_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_PASSWORD_GUID;
+extern const UByteArray INSYDE_FLASH_MAP_REGION_OEM_GUID;
+
 // Restore previous packing rules
 #pragma pack(pop)
 

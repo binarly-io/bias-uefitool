@@ -32,6 +32,7 @@ SET(PROJECT_SOURCES
  ../common/Tiano/EfiTianoDecompress.c
  ../common/ustring.cpp
  ../common/generated/ami_nvar.cpp
+ ../common/generated/insyde_fdm.cpp
  ../common/generated/intel_acbp_v1.cpp
  ../common/generated/intel_acbp_v2.cpp
  ../common/generated/intel_keym_v1.cpp

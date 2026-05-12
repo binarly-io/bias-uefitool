@@ -59,12 +59,14 @@ UString itemTypeToUString(const UINT8 type)
         case Types::EvsaStore:             return UString("EVSA store");
         case Types::CmdbStore:             return UString("CMDB store");
         case Types::FlashMapStore:         return UString("FlashMap store");
+        case Types::InsydeFlashDeviceMapStore:  return UString("FlashDeviceMap store");
         case Types::NvarGuidStore:         return UString("NVAR GUID store");
         case Types::NvarEntry:             return UString("NVAR entry");
         case Types::VssEntry:              return UString("VSS entry");
         case Types::FsysEntry:             return UString("Fsys entry");
         case Types::EvsaEntry:             return UString("EVSA entry");
         case Types::FlashMapEntry:         return UString("FlashMap entry");
+        case Types::InsydeFlashDeviceMapEntry:  return UString("FlashDeviceMap entry");
         case Types::Microcode:             return UString("Microcode");
         case Types::SlicData:              return UString("SLIC data");
         case Types::FptStore:              return UString("FPT store");
@@ -248,4 +250,32 @@ UString hashTypeToUString(const UINT16 algorithm_id)
     }
     
     return usprintf("Unknown %04Xh", algorithm_id);
+}
+
+UString insydeFlashDeviceMapEntryTypeGuidToUString(const EFI_GUID & guid)
+{
+    const UByteArray baGuid((const char*)&guid, sizeof(EFI_GUID));
+    if (baGuid == INSYDE_FLASH_MAP_REGION_BOOT_FV_GUID)          return UString("Boot Firmare Volume");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_BVDT_GUID)             return UString("BIOS Version Data Table");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_EC_GUID)               return UString("EC Firmware");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_FTW_BACKUP_GUID)       return UString("FTW Backup");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_FTW_STATE_GUID)        return UString("FTW State");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_FV_GUID)               return UString("Firmare Volume");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_FLASH_DEVICE_MAP_GUID) return UString("Flash Device Map");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LOGO_GUID)             return UString("Logo");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_MICROCODE_GUID)        return UString("Microcode");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_MSDM_TABLE_GUID)       return UString("MSDM Table");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_MULTI_CONFIG_GUID)     return UString("MultiConfig");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_VAR_DEFAULT_GUID)      return UString("Variable Defaults");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_SMBIOS_UPDATE_GUID)    return UString("SMBIOS Update");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_VAR_GUID)              return UString("Variables");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_UNKNOWN_GUID)          return UString("Unknown");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_UNUSED_GUID)           return UString("Unused");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_USB_OPTION_ROM_GUID)   return UString("USB Option ROM");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_DXE_FV_GUID)           return UString("DXE Firmare Volume");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_PEI_FV_GUID)           return UString("PEI Firmare Volume");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_UNSIGNED_FV_GUID)      return UString("Unsigned Firmare Volume");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_PASSWORD_GUID)         return UString("Password");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_OEM_GUID)              return UString("OEM");
+    return guidToUString(guid);
 }
