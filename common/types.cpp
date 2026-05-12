@@ -255,27 +255,54 @@ UString hashTypeToUString(const UINT16 algorithm_id)
 UString insydeFlashDeviceMapEntryTypeGuidToUString(const EFI_GUID & guid)
 {
     const UByteArray baGuid((const char*)&guid, sizeof(EFI_GUID));
+    if (baGuid == INSYDE_FLASH_MAP_REGION_AUX_FV_GUID)           return UString("Aux Firmare Volume");
     if (baGuid == INSYDE_FLASH_MAP_REGION_BOOT_FV_GUID)          return UString("Boot Firmare Volume");
     if (baGuid == INSYDE_FLASH_MAP_REGION_BVDT_GUID)             return UString("BIOS Version Data Table");
     if (baGuid == INSYDE_FLASH_MAP_REGION_EC_GUID)               return UString("EC Firmware");
     if (baGuid == INSYDE_FLASH_MAP_REGION_FTW_BACKUP_GUID)       return UString("FTW Backup");
     if (baGuid == INSYDE_FLASH_MAP_REGION_FTW_STATE_GUID)        return UString("FTW State");
     if (baGuid == INSYDE_FLASH_MAP_REGION_FV_GUID)               return UString("Firmare Volume");
-    if (baGuid == INSYDE_FLASH_MAP_REGION_FLASH_DEVICE_MAP_GUID) return UString("Flash Device Map");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_FV_OTHER_GUID)         return UString("Other Firmare Volume");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_GPNV_GUID)             return UString("GPNV");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LICENSE_GUID)          return UString("License");
     if (baGuid == INSYDE_FLASH_MAP_REGION_LOGO_GUID)             return UString("Logo");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_FLASH_DEVICE_MAP_GUID) return UString("Flash Device Map");
     if (baGuid == INSYDE_FLASH_MAP_REGION_MICROCODE_GUID)        return UString("Microcode");
     if (baGuid == INSYDE_FLASH_MAP_REGION_MSDM_TABLE_GUID)       return UString("MSDM Table");
     if (baGuid == INSYDE_FLASH_MAP_REGION_MULTI_CONFIG_GUID)     return UString("MultiConfig");
-    if (baGuid == INSYDE_FLASH_MAP_REGION_VAR_DEFAULT_GUID)      return UString("Variable Defaults");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_ODM_GUID)              return UString("ODM");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_OEM_GUID)              return UString("OEM");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_PASSWORD_GUID)         return UString("Password");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_SMBIOS_EVENT_LOG_GUID) return UString("SMBIOS Event Log");
     if (baGuid == INSYDE_FLASH_MAP_REGION_SMBIOS_UPDATE_GUID)    return UString("SMBIOS Update");
     if (baGuid == INSYDE_FLASH_MAP_REGION_VAR_GUID)              return UString("Variables");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_VAR_DEFAULT_GUID)      return UString("Variable Defaults");
     if (baGuid == INSYDE_FLASH_MAP_REGION_UNKNOWN_GUID)          return UString("Unknown");
     if (baGuid == INSYDE_FLASH_MAP_REGION_UNUSED_GUID)           return UString("Unused");
     if (baGuid == INSYDE_FLASH_MAP_REGION_USB_OPTION_ROM_GUID)   return UString("USB Option ROM");
     if (baGuid == INSYDE_FLASH_MAP_REGION_DXE_FV_GUID)           return UString("DXE Firmare Volume");
     if (baGuid == INSYDE_FLASH_MAP_REGION_PEI_FV_GUID)           return UString("PEI Firmare Volume");
     if (baGuid == INSYDE_FLASH_MAP_REGION_UNSIGNED_FV_GUID)      return UString("Unsigned Firmare Volume");
-    if (baGuid == INSYDE_FLASH_MAP_REGION_PASSWORD_GUID)         return UString("Password");
-    if (baGuid == INSYDE_FLASH_MAP_REGION_OEM_GUID)              return UString("OEM");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_FACTORY_COPY_GUID)     return UString("Factory Copy");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_OPTION_ROM_GUID)       return UString("Option ROM");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_BDF_OPTION_ROM_GUID)   return UString("BusDeviceFunction Option ROM");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_VERB_TABLE_GUID)       return UString("Verb Table");
+
+    // Lenovo-specific
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_VARIABLE1_GUID)           return UString("Lenovo Variable1");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_VARIABLE2_GUID)           return UString("Lenovo Variable2");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_EEPROM_GUID)              return UString("Lenovo EEPROM");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_SUPERVISOR_PASSWORD_GUID) return UString("Lenovo Supervisor Password");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_USER_PASSWORD_GUID)       return UString("Lenovo User Password");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_SLP20_GUID)               return UString("Lenovo SLP 2.0");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_COMPUTRACE_GUID)          return UString("Lenovo Computrace");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_CUSTOM_MULTI_LOGO_GUID)   return UString("Lenovo Custom MultiLogo");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_RESERVED_GUID)            return UString("Lenovo Reserved");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_COMPUTRACE_FV_GUID)       return UString("Lenovo Computrace Volume");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_BACKUP_IBB_GUID)          return UString("Lenovo Backup IBB");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_VARIABLE_DEBUG_GUID)      return UString("Lenovo Variable Debug");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_VARIABLE_SUB1_GUID)       return UString("Lenovo Variable Sub1");
+    if (baGuid == INSYDE_FLASH_MAP_REGION_LENOVO_VARIABLE_SUB2_GUID)       return UString("Lenovo Variable Sub2");
+
     return guidToUString(guid);
 }
