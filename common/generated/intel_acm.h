@@ -2,12 +2,15 @@
 
 // This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
 
+class intel_acm_t;
+
 #include "../kaitai/kaitaistruct.h"
 #include <stdint.h>
 #include <memory>
+#include <set>
 
-#if KAITAI_STRUCT_VERSION < 9000L
-#error "Incompatible Kaitai Struct C++/STL API: version 0.9 or later is required"
+#if KAITAI_STRUCT_VERSION < 11000L
+#error "Incompatible Kaitai Struct C++/STL API: version 0.11 or later is required"
 #endif
 
 class intel_acm_t : public kaitai::kstruct {
@@ -15,16 +18,29 @@ class intel_acm_t : public kaitai::kstruct {
 public:
     class header_t;
 
+    enum known_header_version_t {
+        KNOWN_HEADER_VERSION_V0_0 = 0,
+        KNOWN_HEADER_VERSION_V3_0 = 196608,
+        KNOWN_HEADER_VERSION_V5_4 = 327684
+    };
+    static bool _is_defined_known_header_version_t(known_header_version_t v);
+
+private:
+    static const std::set<known_header_version_t> _values_known_header_version_t;
+
+public:
+
     enum module_subtype_t {
         MODULE_SUBTYPE_TXT = 0,
         MODULE_SUBTYPE_STARTUP = 1,
         MODULE_SUBTYPE_BOOT_GUARD = 3
     };
+    static bool _is_defined_module_subtype_t(module_subtype_t v);
 
-    enum known_header_version_t {
-        KNOWN_HEADER_VERSION_V0_0 = 0,
-        KNOWN_HEADER_VERSION_V3_0 = 196608
-    };
+private:
+    static const std::set<module_subtype_t> _values_module_subtype_t;
+
+public:
 
     intel_acm_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent = nullptr, intel_acm_t* p__root = nullptr);
 

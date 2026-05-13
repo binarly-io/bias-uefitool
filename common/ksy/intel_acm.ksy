@@ -9,23 +9,24 @@ meta:
   license: CC0-1.0
   ks-version: 0.9
   endian: le
-  
+
 enums:
   module_subtype:
     0: txt
     1: startup
     3: boot_guard
-  
+
   known_header_version:
     0x00000000: v0_0
     0x00030000: v3_0
-    
+    0x00050004: v5_4
+
 seq:
 - id: header
   type: header
 - id: body
   size: 4 * (header.module_size - header.header_size - header.scratch_space_size)
-  
+
 types:
   header:
     seq:

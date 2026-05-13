@@ -8,18 +8,18 @@ meta:
   license: CC0-1.0
   ks-version: 0.9
   endian: le
-  
+
 enums:
   ibb_segment_type:
     0: ibb
     1: non_ibb
-  
+
   structure_ids:
     0x5f5f504243415f5f: acbp
     0x5f5f534242495f5f: ibbs
     0x5f5f41444d505f5f: pmda
     0x5f5f47534d505f5f: pmsg
-  
+
 seq:
 - id: structure_id
   type: u8
@@ -44,8 +44,8 @@ seq:
 - id: elements
   type: acbp_element
   repeat: until
-  repeat-until: _.header.structure_id == structure_ids::pmsg or _io.eof 
-  
+  repeat-until: _.header.structure_id == structure_ids::pmsg or _io.eof
+
 types:
   acbp_element:
     seq:
@@ -62,12 +62,12 @@ types:
       if: header.structure_id == structure_ids::pmsg
     - id: invalid_body
       size: 0
-      if:     header.structure_id != structure_ids::pmsg 
-          and header.structure_id != structure_ids::pmda 
+      if:     header.structure_id != structure_ids::pmsg
+          and header.structure_id != structure_ids::pmda
           and header.structure_id != structure_ids::ibbs
       valid:
         expr: false
-      
+
   common_header:
     seq:
     - id: structure_id
@@ -84,7 +84,7 @@ types:
       type: u2
     - id: hash
       size: 32
- 
+
   ibbs_body:
     seq:
     - id: reserved
@@ -117,7 +117,7 @@ types:
       type: ibb_segment
       repeat: expr
       repeat-expr: num_ibb_segments
-  
+
   ibb_segment:
     seq:
     - id: reserved
@@ -128,7 +128,7 @@ types:
       type: u4
     - id: size
       type: u4
-  
+
   pmda_body:
     seq:
     - id: total_size
@@ -147,7 +147,7 @@ types:
       type: pmda_entry_v2
       repeat: expr
       repeat-expr: num_entries
-  
+
   pmda_entry_v1:
     seq:
     - id: base
@@ -156,7 +156,7 @@ types:
       type: u4
     - id: hash
       size: 32
-  
+
   pmda_entry_v2:
     seq:
     - id: base
@@ -165,7 +165,7 @@ types:
       type: u4
     - id: hash
       type: hash
-     
+
   pmsg_body:
     seq:
     - id: version
@@ -178,7 +178,7 @@ types:
       type: u2
     - id: signature
       type: signature
-      
+
   public_key:
     seq:
     - id: version
@@ -189,7 +189,7 @@ types:
       type: u4
     - id: modulus
       size: size_bits / 8
-  
+
   signature:
     seq:
     - id: version

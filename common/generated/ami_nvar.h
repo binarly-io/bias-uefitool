@@ -2,23 +2,25 @@
 
 // This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
 
+class ami_nvar_t;
+
 #include "../kaitai/kaitaistruct.h"
 #include <stdint.h>
 #include <memory>
 #include <vector>
 
-#if KAITAI_STRUCT_VERSION < 9000L
-#error "Incompatible Kaitai Struct C++/STL API: version 0.9 or later is required"
+#if KAITAI_STRUCT_VERSION < 11000L
+#error "Incompatible Kaitai Struct C++/STL API: version 0.11 or later is required"
 #endif
 
 class ami_nvar_t : public kaitai::kstruct {
 
 public:
     class nvar_attributes_t;
-    class ucs2_string_t;
-    class nvar_extended_attributes_t;
     class nvar_entry_t;
     class nvar_entry_body_t;
+    class nvar_extended_attributes_t;
+    class ucs2_string_t;
 
     ami_nvar_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent = nullptr, ami_nvar_t* p__root = nullptr);
 
@@ -67,62 +69,6 @@ public:
         ami_nvar_t::nvar_entry_t* _parent() const { return m__parent; }
     };
 
-    class ucs2_string_t : public kaitai::kstruct {
-
-    public:
-
-        ucs2_string_t(kaitai::kstream* p__io, ami_nvar_t::nvar_entry_body_t* p__parent = nullptr, ami_nvar_t* p__root = nullptr);
-
-    private:
-        void _read();
-        void _clean_up();
-
-    public:
-        ~ucs2_string_t();
-
-    private:
-        std::unique_ptr<std::vector<uint16_t>> m_ucs2_chars;
-        ami_nvar_t* m__root;
-        ami_nvar_t::nvar_entry_body_t* m__parent;
-
-    public:
-        std::vector<uint16_t>* ucs2_chars() const { return m_ucs2_chars.get(); }
-        ami_nvar_t* _root() const { return m__root; }
-        ami_nvar_t::nvar_entry_body_t* _parent() const { return m__parent; }
-    };
-
-    class nvar_extended_attributes_t : public kaitai::kstruct {
-
-    public:
-
-        nvar_extended_attributes_t(kaitai::kstream* p__io, ami_nvar_t::nvar_entry_body_t* p__parent = nullptr, ami_nvar_t* p__root = nullptr);
-
-    private:
-        void _read();
-        void _clean_up();
-
-    public:
-        ~nvar_extended_attributes_t();
-
-    private:
-        uint64_t m_reserved_high;
-        bool m_time_based_auth;
-        bool m_auth_write;
-        uint64_t m_reserved_low;
-        bool m_checksum;
-        ami_nvar_t* m__root;
-        ami_nvar_t::nvar_entry_body_t* m__parent;
-
-    public:
-        uint64_t reserved_high() const { return m_reserved_high; }
-        bool time_based_auth() const { return m_time_based_auth; }
-        bool auth_write() const { return m_auth_write; }
-        uint64_t reserved_low() const { return m_reserved_low; }
-        bool checksum() const { return m_checksum; }
-        ami_nvar_t* _root() const { return m__root; }
-        ami_nvar_t::nvar_entry_body_t* _parent() const { return m__parent; }
-    };
-
     class nvar_entry_t : public kaitai::kstruct {
 
     public:
@@ -137,18 +83,18 @@ public:
         ~nvar_entry_t();
 
     private:
-        bool f_offset;
-        int32_t m_offset;
-
-    public:
-        int32_t offset();
-
-    private:
         bool f_end_offset;
         int32_t m_end_offset;
 
     public:
         int32_t end_offset();
+
+    private:
+        bool f_offset;
+        int32_t m_offset;
+
+    public:
+        int32_t offset();
 
     private:
         std::string m_invoke_offset;
@@ -241,6 +187,27 @@ public:
         ~nvar_entry_body_t();
 
     private:
+        bool f_data_end_offset;
+        int32_t m_data_end_offset;
+
+    public:
+        int32_t data_end_offset();
+
+    private:
+        bool f_data_size;
+        int32_t m_data_size;
+
+    public:
+        int32_t data_size();
+
+    private:
+        bool f_data_start_offset;
+        int32_t m_data_start_offset;
+
+    public:
+        int32_t data_start_offset();
+
+    private:
         bool f_extended_header_attributes;
         std::unique_ptr<nvar_extended_attributes_t> m_extended_header_attributes;
         bool n_extended_header_attributes;
@@ -254,11 +221,37 @@ public:
         nvar_extended_attributes_t* extended_header_attributes();
 
     private:
-        bool f_data_start_offset;
-        int32_t m_data_start_offset;
+        bool f_extended_header_checksum;
+        uint8_t m_extended_header_checksum;
+        bool n_extended_header_checksum;
 
     public:
-        int32_t data_start_offset();
+        bool _is_null_extended_header_checksum() { extended_header_checksum(); return n_extended_header_checksum; };
+
+    private:
+
+    public:
+        uint8_t extended_header_checksum();
+
+    private:
+        bool f_extended_header_hash;
+        std::string m_extended_header_hash;
+        bool n_extended_header_hash;
+
+    public:
+        bool _is_null_extended_header_hash() { extended_header_hash(); return n_extended_header_hash; };
+
+    private:
+
+    public:
+        std::string extended_header_hash();
+
+    private:
+        bool f_extended_header_size;
+        uint16_t m_extended_header_size;
+
+    public:
+        uint16_t extended_header_size();
 
     private:
         bool f_extended_header_size_field;
@@ -285,53 +278,6 @@ public:
 
     public:
         uint64_t extended_header_timestamp();
-
-    private:
-        bool f_data_size;
-        int32_t m_data_size;
-
-    public:
-        int32_t data_size();
-
-    private:
-        bool f_extended_header_checksum;
-        uint8_t m_extended_header_checksum;
-        bool n_extended_header_checksum;
-
-    public:
-        bool _is_null_extended_header_checksum() { extended_header_checksum(); return n_extended_header_checksum; };
-
-    private:
-
-    public:
-        uint8_t extended_header_checksum();
-
-    private:
-        bool f_data_end_offset;
-        int32_t m_data_end_offset;
-
-    public:
-        int32_t data_end_offset();
-
-    private:
-        bool f_extended_header_size;
-        uint16_t m_extended_header_size;
-
-    public:
-        uint16_t extended_header_size();
-
-    private:
-        bool f_extended_header_hash;
-        std::string m_extended_header_hash;
-        bool n_extended_header_hash;
-
-    public:
-        bool _is_null_extended_header_hash() { extended_header_hash(); return n_extended_header_hash; };
-
-    private:
-
-    public:
-        std::string extended_header_hash();
 
     private:
         uint8_t m_guid_index;
@@ -382,6 +328,62 @@ public:
         std::string data() const { return m_data; }
         ami_nvar_t* _root() const { return m__root; }
         ami_nvar_t::nvar_entry_t* _parent() const { return m__parent; }
+    };
+
+    class nvar_extended_attributes_t : public kaitai::kstruct {
+
+    public:
+
+        nvar_extended_attributes_t(kaitai::kstream* p__io, ami_nvar_t::nvar_entry_body_t* p__parent = nullptr, ami_nvar_t* p__root = nullptr);
+
+    private:
+        void _read();
+        void _clean_up();
+
+    public:
+        ~nvar_extended_attributes_t();
+
+    private:
+        uint64_t m_reserved_high;
+        bool m_time_based_auth;
+        bool m_auth_write;
+        uint64_t m_reserved_low;
+        bool m_checksum;
+        ami_nvar_t* m__root;
+        ami_nvar_t::nvar_entry_body_t* m__parent;
+
+    public:
+        uint64_t reserved_high() const { return m_reserved_high; }
+        bool time_based_auth() const { return m_time_based_auth; }
+        bool auth_write() const { return m_auth_write; }
+        uint64_t reserved_low() const { return m_reserved_low; }
+        bool checksum() const { return m_checksum; }
+        ami_nvar_t* _root() const { return m__root; }
+        ami_nvar_t::nvar_entry_body_t* _parent() const { return m__parent; }
+    };
+
+    class ucs2_string_t : public kaitai::kstruct {
+
+    public:
+
+        ucs2_string_t(kaitai::kstream* p__io, ami_nvar_t::nvar_entry_body_t* p__parent = nullptr, ami_nvar_t* p__root = nullptr);
+
+    private:
+        void _read();
+        void _clean_up();
+
+    public:
+        ~ucs2_string_t();
+
+    private:
+        std::unique_ptr<std::vector<uint16_t>> m_ucs2_chars;
+        ami_nvar_t* m__root;
+        ami_nvar_t::nvar_entry_body_t* m__parent;
+
+    public:
+        std::vector<uint16_t>* ucs2_chars() const { return m_ucs2_chars.get(); }
+        ami_nvar_t* _root() const { return m__root; }
+        ami_nvar_t::nvar_entry_body_t* _parent() const { return m__parent; }
     };
 
 private:

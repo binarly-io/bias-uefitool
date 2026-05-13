@@ -8,7 +8,7 @@ meta:
   license: CC0-1.0
   ks-version: 0.9
   endian: le
-  
+
 enums:
   structure_ids:
     0x5f5f4d59454b5f5f: keym
@@ -18,7 +18,7 @@ enums:
     2: fit_patch_manifest
     4: acm_manifest
     8: sdev
-  
+
 seq:
 - id: header
   type: header
@@ -42,9 +42,9 @@ seq:
   type: km_hash
   repeat: expr
   repeat-expr: num_km_hashes
-- id: key_signature   
+- id: key_signature
   type: key_signature
-    
+
 types:
   header:
     seq:
@@ -60,8 +60,8 @@ types:
       type: u1
     - id: total_size
       type: u2
-      valid: 0x0    
-      
+      valid: 0x0
+
   km_hash:
     seq:
     - id: usage_flags
@@ -72,7 +72,7 @@ types:
       type: u2
     - id: hash
       size: len_hash
-  
+
   public_key:
     seq:
     - id: version
@@ -83,7 +83,7 @@ types:
       type: u4
     - id: modulus
       size: size_bits / 8
-  
+
   signature:
     seq:
     - id: version
@@ -94,7 +94,7 @@ types:
       type: u2
     - id: signature
       size: size_bits / 8
-  
+
   key_signature:
     seq:
     - id: version
