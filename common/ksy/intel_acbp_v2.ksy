@@ -8,12 +8,12 @@ meta:
   license: CC0-1.0
   ks-version: 0.9
   endian: le
-  
+
 enums:
   ibb_segment_type:
     0: ibb
     1: non_ibb
-  
+
   structure_ids:
     0x5f5f504243415f5f: acbp
     0x5f5f534242495f5f: ibbs
@@ -22,7 +22,7 @@ enums:
     0x5f5f534443505f5f: pcds
     0x5f5f41444d505f5f: pmda
     0x5f5f47534d505f5f: pmsg
-  
+
 seq:
 - id: structure_id
   type: u8
@@ -55,7 +55,7 @@ seq:
   repeat-until: _.header.total_size == 0 or _.header.structure_id == structure_ids::pmsg
 - id: key_signature
   type: key_signature
-    
+
 types:
   header:
     seq:
@@ -68,7 +68,7 @@ types:
       type: u1
     - id: total_size
       type: u2
-        
+
   hash:
     seq:
     - id: hash_algorithm_id
@@ -77,7 +77,7 @@ types:
       type: u2
     - id: hash
       size: len_hash
-  
+
   pmda_entry_v3:
     seq:
     - id: entry_id
@@ -92,7 +92,7 @@ types:
       type: u2
     - id: hash
       type: hash
-  
+
   pmda_body:
     seq:
     - id: reserved
@@ -108,7 +108,7 @@ types:
       type: pmda_entry_v3
       repeat: expr
       repeat-expr: num_entries
-  
+
   ibb_segment:
     seq:
     - id: reserved
@@ -119,7 +119,7 @@ types:
       type: u4
     - id: size
       type: u4
-  
+
   ibbs_body:
     seq:
     - id: reserved0
@@ -168,23 +168,23 @@ types:
       type: ibb_segment
       repeat: expr
       repeat-expr: num_ibb_segments
-  
+
   acbp_element:
     seq:
     - id: header
       type: header
     - id: ibbs_body
       type: ibbs_body
-      if:     header.structure_id == structure_ids::ibbs 
-          and header.total_size >= sizeof<header> 
+      if:     header.structure_id == structure_ids::ibbs
+          and header.total_size >= sizeof<header>
     - id: pmda_body
       type: pmda_body
-      if:     header.structure_id == structure_ids::pmda 
-          and header.total_size >= sizeof<header> 
+      if:     header.structure_id == structure_ids::pmda
+          and header.total_size >= sizeof<header>
     - id: generic_body
       size: header.total_size - sizeof<header>
-      if:     header.structure_id != structure_ids::ibbs 
-          and header.structure_id != structure_ids::pmda 
+      if:     header.structure_id != structure_ids::ibbs
+          and header.structure_id != structure_ids::pmda
           and header.total_size >= sizeof<header>
 
   public_key:
@@ -197,7 +197,7 @@ types:
       type: u4
     - id: modulus
       size: size_bits / 8
-  
+
   signature:
     seq:
     - id: version
@@ -208,7 +208,7 @@ types:
       type: u2
     - id: signature
       size: size_bits / 8
-  
+
   key_signature:
     seq:
     - id: version

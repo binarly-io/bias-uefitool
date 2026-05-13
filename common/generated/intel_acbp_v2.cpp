@@ -2,10 +2,29 @@
 
 #include "intel_acbp_v2.h"
 #include "../kaitai/exceptions.h"
+const std::set<intel_acbp_v2_t::ibb_segment_type_t> intel_acbp_v2_t::_values_ibb_segment_type_t{
+    intel_acbp_v2_t::IBB_SEGMENT_TYPE_IBB,
+    intel_acbp_v2_t::IBB_SEGMENT_TYPE_NON_IBB,
+};
+bool intel_acbp_v2_t::_is_defined_ibb_segment_type_t(intel_acbp_v2_t::ibb_segment_type_t v) {
+    return intel_acbp_v2_t::_values_ibb_segment_type_t.find(v) != intel_acbp_v2_t::_values_ibb_segment_type_t.end();
+}
+const std::set<intel_acbp_v2_t::structure_ids_t> intel_acbp_v2_t::_values_structure_ids_t{
+    intel_acbp_v2_t::STRUCTURE_IDS_PMDA,
+    intel_acbp_v2_t::STRUCTURE_IDS_PMSG,
+    intel_acbp_v2_t::STRUCTURE_IDS_ACBP,
+    intel_acbp_v2_t::STRUCTURE_IDS_IBBS,
+    intel_acbp_v2_t::STRUCTURE_IDS_PCDS,
+    intel_acbp_v2_t::STRUCTURE_IDS_PFRS,
+    intel_acbp_v2_t::STRUCTURE_IDS_TXTS,
+};
+bool intel_acbp_v2_t::_is_defined_structure_ids_t(intel_acbp_v2_t::structure_ids_t v) {
+    return intel_acbp_v2_t::_values_structure_ids_t.find(v) != intel_acbp_v2_t::_values_structure_ids_t.end();
+}
 
 intel_acbp_v2_t::intel_acbp_v2_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
-    m__root = this; (void)p__root;
+    m__root = p__root ? p__root : this;
     m_elements = nullptr;
     m_key_signature = nullptr;
     _read();
@@ -13,20 +32,20 @@ intel_acbp_v2_t::intel_acbp_v2_t(kaitai::kstream* p__io, kaitai::kstruct* p__par
 
 void intel_acbp_v2_t::_read() {
     m_structure_id = static_cast<intel_acbp_v2_t::structure_ids_t>(m__io->read_u8le());
-    if (!(structure_id() == intel_acbp_v2_t::STRUCTURE_IDS_ACBP)) {
-        throw kaitai::validation_not_equal_error<intel_acbp_v2_t::structure_ids_t>(intel_acbp_v2_t::STRUCTURE_IDS_ACBP, structure_id(), _io(), std::string("/seq/0"));
+    if (!(m_structure_id == intel_acbp_v2_t::STRUCTURE_IDS_ACBP)) {
+        throw kaitai::validation_not_equal_error<intel_acbp_v2_t::structure_ids_t>(intel_acbp_v2_t::STRUCTURE_IDS_ACBP, m_structure_id, m__io, std::string("/seq/0"));
     }
     m_version = m__io->read_u1();
     {
-        uint8_t _ = version();
+        uint8_t _ = m_version;
         if (!(_ >= 32)) {
-            throw kaitai::validation_expr_error<uint8_t>(version(), _io(), std::string("/seq/1"));
+            throw kaitai::validation_expr_error<uint8_t>(m_version, m__io, std::string("/seq/1"));
         }
     }
     m_header_specific = m__io->read_u1();
     m_total_size = m__io->read_u2le();
-    if (!(total_size() == 20)) {
-        throw kaitai::validation_not_equal_error<uint16_t>(20, total_size(), _io(), std::string("/seq/3"));
+    if (!(m_total_size == 20)) {
+        throw kaitai::validation_not_equal_error<uint16_t>(20, m_total_size, m__io, std::string("/seq/3"));
     }
     m_key_signature_offset = m__io->read_u2le();
     m_bpm_revision = m__io->read_u1();
@@ -78,7 +97,7 @@ void intel_acbp_v2_t::acbp_element_t::_read() {
     n_generic_body = true;
     if ( ((header()->structure_id() != intel_acbp_v2_t::STRUCTURE_IDS_IBBS) && (header()->structure_id() != intel_acbp_v2_t::STRUCTURE_IDS_PMDA) && (header()->total_size() >= 12)) ) {
         n_generic_body = false;
-        m_generic_body = m__io->read_bytes((header()->total_size() - 12));
+        m_generic_body = m__io->read_bytes(header()->total_size() - 12);
     }
 }
 
@@ -93,89 +112,6 @@ void intel_acbp_v2_t::acbp_element_t::_clean_up() {
     }
     if (!n_generic_body) {
     }
-}
-
-intel_acbp_v2_t::key_signature_t::key_signature_t(kaitai::kstream* p__io, intel_acbp_v2_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
-    m__parent = p__parent;
-    m__root = p__root;
-    m_public_key = nullptr;
-    m_signature = nullptr;
-    _read();
-}
-
-void intel_acbp_v2_t::key_signature_t::_read() {
-    m_version = m__io->read_u1();
-    m_key_id = m__io->read_u2le();
-    m_public_key = std::unique_ptr<public_key_t>(new public_key_t(m__io, this, m__root));
-    m_sig_scheme = m__io->read_u2le();
-    m_signature = std::unique_ptr<signature_t>(new signature_t(m__io, this, m__root));
-}
-
-intel_acbp_v2_t::key_signature_t::~key_signature_t() {
-    _clean_up();
-}
-
-void intel_acbp_v2_t::key_signature_t::_clean_up() {
-}
-
-intel_acbp_v2_t::signature_t::signature_t(kaitai::kstream* p__io, intel_acbp_v2_t::key_signature_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
-    m__parent = p__parent;
-    m__root = p__root;
-    _read();
-}
-
-void intel_acbp_v2_t::signature_t::_read() {
-    m_version = m__io->read_u1();
-    m_size_bits = m__io->read_u2le();
-    m_hash_algorithm_id = m__io->read_u2le();
-    m_signature = m__io->read_bytes((size_bits() / 8));
-}
-
-intel_acbp_v2_t::signature_t::~signature_t() {
-    _clean_up();
-}
-
-void intel_acbp_v2_t::signature_t::_clean_up() {
-}
-
-intel_acbp_v2_t::ibb_segment_t::ibb_segment_t(kaitai::kstream* p__io, intel_acbp_v2_t::ibbs_body_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
-    m__parent = p__parent;
-    m__root = p__root;
-    _read();
-}
-
-void intel_acbp_v2_t::ibb_segment_t::_read() {
-    m_reserved = m__io->read_u2le();
-    m_flags = m__io->read_u2le();
-    m_base = m__io->read_u4le();
-    m_size = m__io->read_u4le();
-}
-
-intel_acbp_v2_t::ibb_segment_t::~ibb_segment_t() {
-    _clean_up();
-}
-
-void intel_acbp_v2_t::ibb_segment_t::_clean_up() {
-}
-
-intel_acbp_v2_t::public_key_t::public_key_t(kaitai::kstream* p__io, intel_acbp_v2_t::key_signature_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
-    m__parent = p__parent;
-    m__root = p__root;
-    _read();
-}
-
-void intel_acbp_v2_t::public_key_t::_read() {
-    m_version = m__io->read_u1();
-    m_size_bits = m__io->read_u2le();
-    m_exponent = m__io->read_u4le();
-    m_modulus = m__io->read_bytes((size_bits() / 8));
-}
-
-intel_acbp_v2_t::public_key_t::~public_key_t() {
-    _clean_up();
-}
-
-void intel_acbp_v2_t::public_key_t::_clean_up() {
 }
 
 intel_acbp_v2_t::hash_t::hash_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
@@ -217,27 +153,24 @@ intel_acbp_v2_t::header_t::~header_t() {
 void intel_acbp_v2_t::header_t::_clean_up() {
 }
 
-intel_acbp_v2_t::pmda_entry_v3_t::pmda_entry_v3_t(kaitai::kstream* p__io, intel_acbp_v2_t::pmda_body_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
+intel_acbp_v2_t::ibb_segment_t::ibb_segment_t(kaitai::kstream* p__io, intel_acbp_v2_t::ibbs_body_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = p__root;
-    m_hash = nullptr;
     _read();
 }
 
-void intel_acbp_v2_t::pmda_entry_v3_t::_read() {
-    m_entry_id = m__io->read_u4le();
+void intel_acbp_v2_t::ibb_segment_t::_read() {
+    m_reserved = m__io->read_u2le();
+    m_flags = m__io->read_u2le();
     m_base = m__io->read_u4le();
     m_size = m__io->read_u4le();
-    m_total_entry_size = m__io->read_u2le();
-    m_version = m__io->read_u2le();
-    m_hash = std::unique_ptr<hash_t>(new hash_t(m__io, this, m__root));
 }
 
-intel_acbp_v2_t::pmda_entry_v3_t::~pmda_entry_v3_t() {
+intel_acbp_v2_t::ibb_segment_t::~ibb_segment_t() {
     _clean_up();
 }
 
-void intel_acbp_v2_t::pmda_entry_v3_t::_clean_up() {
+void intel_acbp_v2_t::ibb_segment_t::_clean_up() {
 }
 
 intel_acbp_v2_t::ibbs_body_t::ibbs_body_t(kaitai::kstream* p__io, intel_acbp_v2_t::acbp_element_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
@@ -293,6 +226,29 @@ intel_acbp_v2_t::ibbs_body_t::~ibbs_body_t() {
 void intel_acbp_v2_t::ibbs_body_t::_clean_up() {
 }
 
+intel_acbp_v2_t::key_signature_t::key_signature_t(kaitai::kstream* p__io, intel_acbp_v2_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
+    m__parent = p__parent;
+    m__root = p__root;
+    m_public_key = nullptr;
+    m_signature = nullptr;
+    _read();
+}
+
+void intel_acbp_v2_t::key_signature_t::_read() {
+    m_version = m__io->read_u1();
+    m_key_id = m__io->read_u2le();
+    m_public_key = std::unique_ptr<public_key_t>(new public_key_t(m__io, this, m__root));
+    m_sig_scheme = m__io->read_u2le();
+    m_signature = std::unique_ptr<signature_t>(new signature_t(m__io, this, m__root));
+}
+
+intel_acbp_v2_t::key_signature_t::~key_signature_t() {
+    _clean_up();
+}
+
+void intel_acbp_v2_t::key_signature_t::_clean_up() {
+}
+
 intel_acbp_v2_t::pmda_body_t::pmda_body_t(kaitai::kstream* p__io, intel_acbp_v2_t::acbp_element_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = p__root;
@@ -304,8 +260,8 @@ void intel_acbp_v2_t::pmda_body_t::_read() {
     m_reserved = m__io->read_u2le();
     m_total_size = m__io->read_u2le();
     m_version = m__io->read_u4le();
-    if (!(version() == 3)) {
-        throw kaitai::validation_not_equal_error<uint32_t>(3, version(), _io(), std::string("/types/pmda_body/seq/2"));
+    if (!(m_version == 3)) {
+        throw kaitai::validation_not_equal_error<uint32_t>(3, m_version, m__io, std::string("/types/pmda_body/seq/2"));
     }
     m_num_entries = m__io->read_u4le();
     m_entries = std::unique_ptr<std::vector<std::unique_ptr<pmda_entry_v3_t>>>(new std::vector<std::unique_ptr<pmda_entry_v3_t>>());
@@ -320,4 +276,67 @@ intel_acbp_v2_t::pmda_body_t::~pmda_body_t() {
 }
 
 void intel_acbp_v2_t::pmda_body_t::_clean_up() {
+}
+
+intel_acbp_v2_t::pmda_entry_v3_t::pmda_entry_v3_t(kaitai::kstream* p__io, intel_acbp_v2_t::pmda_body_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
+    m__parent = p__parent;
+    m__root = p__root;
+    m_hash = nullptr;
+    _read();
+}
+
+void intel_acbp_v2_t::pmda_entry_v3_t::_read() {
+    m_entry_id = m__io->read_u4le();
+    m_base = m__io->read_u4le();
+    m_size = m__io->read_u4le();
+    m_total_entry_size = m__io->read_u2le();
+    m_version = m__io->read_u2le();
+    m_hash = std::unique_ptr<hash_t>(new hash_t(m__io, this, m__root));
+}
+
+intel_acbp_v2_t::pmda_entry_v3_t::~pmda_entry_v3_t() {
+    _clean_up();
+}
+
+void intel_acbp_v2_t::pmda_entry_v3_t::_clean_up() {
+}
+
+intel_acbp_v2_t::public_key_t::public_key_t(kaitai::kstream* p__io, intel_acbp_v2_t::key_signature_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
+    m__parent = p__parent;
+    m__root = p__root;
+    _read();
+}
+
+void intel_acbp_v2_t::public_key_t::_read() {
+    m_version = m__io->read_u1();
+    m_size_bits = m__io->read_u2le();
+    m_exponent = m__io->read_u4le();
+    m_modulus = m__io->read_bytes(size_bits() / 8);
+}
+
+intel_acbp_v2_t::public_key_t::~public_key_t() {
+    _clean_up();
+}
+
+void intel_acbp_v2_t::public_key_t::_clean_up() {
+}
+
+intel_acbp_v2_t::signature_t::signature_t(kaitai::kstream* p__io, intel_acbp_v2_t::key_signature_t* p__parent, intel_acbp_v2_t* p__root) : kaitai::kstruct(p__io) {
+    m__parent = p__parent;
+    m__root = p__root;
+    _read();
+}
+
+void intel_acbp_v2_t::signature_t::_read() {
+    m_version = m__io->read_u1();
+    m_size_bits = m__io->read_u2le();
+    m_hash_algorithm_id = m__io->read_u2le();
+    m_signature = m__io->read_bytes(size_bits() / 8);
+}
+
+intel_acbp_v2_t::signature_t::~signature_t() {
+    _clean_up();
+}
+
+void intel_acbp_v2_t::signature_t::_clean_up() {
 }

@@ -8,11 +8,11 @@ meta:
   license: CC0-1.0
   ks-version: 0.9
   endian: le
-  
+
 enums:
   structure_ids:
     0x5f5f4d59454b5f5f: keym
-    
+
 seq:
 - id: structure_id
   type: u8
@@ -32,7 +32,7 @@ seq:
   type: km_hash
 - id: key_signature
   type: key_signature
-  
+
 types:
   km_hash:
     seq:
@@ -42,7 +42,7 @@ types:
       type: u2
     - id: hash
       size: len_hash
-      
+
   public_key:
     seq:
     - id: version
@@ -53,7 +53,7 @@ types:
       type: u4
     - id: modulus
       size: size_bits / 8
-  
+
   signature:
     seq:
     - id: version
@@ -64,7 +64,7 @@ types:
       type: u2
     - id: signature
       size: size_bits / 8
-  
+
   key_signature:
     seq:
     - id: version

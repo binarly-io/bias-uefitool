@@ -2,27 +2,26 @@
 
 // This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
 
+class intel_keym_v2_t;
+
 #include "../kaitai/kaitaistruct.h"
 #include <stdint.h>
 #include <memory>
+#include <set>
 #include <vector>
 
-#if KAITAI_STRUCT_VERSION < 9000L
-#error "Incompatible Kaitai Struct C++/STL API: version 0.9 or later is required"
+#if KAITAI_STRUCT_VERSION < 11000L
+#error "Incompatible Kaitai Struct C++/STL API: version 0.11 or later is required"
 #endif
 
 class intel_keym_v2_t : public kaitai::kstruct {
 
 public:
+    class header_t;
     class key_signature_t;
     class km_hash_t;
-    class signature_t;
     class public_key_t;
-    class header_t;
-
-    enum structure_ids_t : uint64_t {
-        STRUCTURE_IDS_KEYM = 6872296602200661855LL
-    };
+    class signature_t;
 
     enum km_usage_flags_t {
         KM_USAGE_FLAGS_BOOT_POLICY_MANIFEST = 1,
@@ -30,6 +29,22 @@ public:
         KM_USAGE_FLAGS_ACM_MANIFEST = 4,
         KM_USAGE_FLAGS_SDEV = 8
     };
+    static bool _is_defined_km_usage_flags_t(km_usage_flags_t v);
+
+private:
+    static const std::set<km_usage_flags_t> _values_km_usage_flags_t;
+
+public:
+
+    enum structure_ids_t : uint64_t {
+        STRUCTURE_IDS_KEYM = 6872296602200661855LL
+    };
+    static bool _is_defined_structure_ids_t(structure_ids_t v);
+
+private:
+    static const std::set<structure_ids_t> _values_structure_ids_t;
+
+public:
 
     intel_keym_v2_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent = nullptr, intel_keym_v2_t* p__root = nullptr);
 
@@ -39,6 +54,36 @@ private:
 
 public:
     ~intel_keym_v2_t();
+
+    class header_t : public kaitai::kstruct {
+
+    public:
+
+        header_t(kaitai::kstream* p__io, intel_keym_v2_t* p__parent = nullptr, intel_keym_v2_t* p__root = nullptr);
+
+    private:
+        void _read();
+        void _clean_up();
+
+    public:
+        ~header_t();
+
+    private:
+        structure_ids_t m_structure_id;
+        uint8_t m_version;
+        uint8_t m_header_specific;
+        uint16_t m_total_size;
+        intel_keym_v2_t* m__root;
+        intel_keym_v2_t* m__parent;
+
+    public:
+        structure_ids_t structure_id() const { return m_structure_id; }
+        uint8_t version() const { return m_version; }
+        uint8_t header_specific() const { return m_header_specific; }
+        uint16_t total_size() const { return m_total_size; }
+        intel_keym_v2_t* _root() const { return m__root; }
+        intel_keym_v2_t* _parent() const { return m__parent; }
+    };
 
     class key_signature_t : public kaitai::kstruct {
 
@@ -102,36 +147,6 @@ public:
         intel_keym_v2_t* _parent() const { return m__parent; }
     };
 
-    class signature_t : public kaitai::kstruct {
-
-    public:
-
-        signature_t(kaitai::kstream* p__io, intel_keym_v2_t::key_signature_t* p__parent = nullptr, intel_keym_v2_t* p__root = nullptr);
-
-    private:
-        void _read();
-        void _clean_up();
-
-    public:
-        ~signature_t();
-
-    private:
-        uint8_t m_version;
-        uint16_t m_size_bits;
-        uint16_t m_hash_algorithm_id;
-        std::string m_signature;
-        intel_keym_v2_t* m__root;
-        intel_keym_v2_t::key_signature_t* m__parent;
-
-    public:
-        uint8_t version() const { return m_version; }
-        uint16_t size_bits() const { return m_size_bits; }
-        uint16_t hash_algorithm_id() const { return m_hash_algorithm_id; }
-        std::string signature() const { return m_signature; }
-        intel_keym_v2_t* _root() const { return m__root; }
-        intel_keym_v2_t::key_signature_t* _parent() const { return m__parent; }
-    };
-
     class public_key_t : public kaitai::kstruct {
 
     public:
@@ -162,34 +177,34 @@ public:
         intel_keym_v2_t::key_signature_t* _parent() const { return m__parent; }
     };
 
-    class header_t : public kaitai::kstruct {
+    class signature_t : public kaitai::kstruct {
 
     public:
 
-        header_t(kaitai::kstream* p__io, intel_keym_v2_t* p__parent = nullptr, intel_keym_v2_t* p__root = nullptr);
+        signature_t(kaitai::kstream* p__io, intel_keym_v2_t::key_signature_t* p__parent = nullptr, intel_keym_v2_t* p__root = nullptr);
 
     private:
         void _read();
         void _clean_up();
 
     public:
-        ~header_t();
+        ~signature_t();
 
     private:
-        structure_ids_t m_structure_id;
         uint8_t m_version;
-        uint8_t m_header_specific;
-        uint16_t m_total_size;
+        uint16_t m_size_bits;
+        uint16_t m_hash_algorithm_id;
+        std::string m_signature;
         intel_keym_v2_t* m__root;
-        intel_keym_v2_t* m__parent;
+        intel_keym_v2_t::key_signature_t* m__parent;
 
     public:
-        structure_ids_t structure_id() const { return m_structure_id; }
         uint8_t version() const { return m_version; }
-        uint8_t header_specific() const { return m_header_specific; }
-        uint16_t total_size() const { return m_total_size; }
+        uint16_t size_bits() const { return m_size_bits; }
+        uint16_t hash_algorithm_id() const { return m_hash_algorithm_id; }
+        std::string signature() const { return m_signature; }
         intel_keym_v2_t* _root() const { return m__root; }
-        intel_keym_v2_t* _parent() const { return m__parent; }
+        intel_keym_v2_t::key_signature_t* _parent() const { return m__parent; }
     };
 
 private:

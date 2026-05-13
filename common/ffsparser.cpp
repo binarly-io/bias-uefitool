@@ -36,6 +36,10 @@
 #include "digest/sha2.h"
 #include "digest/sm3.h"
 
+#include "umemstream.h"
+#include "kaitai/kaitaistream.h"
+#include "generated/insyde_fdm.h"
+
 // Constructor
 FfsParser::FfsParser(TreeModel* treeModel) : model(treeModel),
 imageBase(0), addressDiff(0x100000000ULL), protectedRegionsBase(0) {
@@ -964,19 +968,163 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
         }
         else if (itemType == Types::BpdtStore) {
             UByteArray bpdtStore = data.mid(itemOffset, itemSize);
-            
+
             // Get info
             name = UString("BPDT region");
             info = usprintf("Full size: %Xh (%u)", (UINT32)bpdtStore.size(), (UINT32)bpdtStore.size());
-            
+
             // Add tree item
             UModelIndex bpdtIndex = model->addItem(headerSize + itemOffset, Types::BpdtStore, 0, name, UString(), info, UByteArray(), bpdtStore, UByteArray(), Fixed, index);
-            
+
             // Parse BPDT region
             UModelIndex bpdtPtIndex;
             result = parseBpdtRegion(bpdtStore, 0, 0, bpdtIndex, bpdtPtIndex);
             if (result) {
                 msg(usprintf("%s: BPDT store parsing failed with error ", __FUNCTION__) + errorCodeToUString(result), index);
+            }
+        }
+        else if (itemType == Types::InsydeFlashDeviceMapStore) {
+            try {
+                UByteArray fdm = data.mid(itemOffset, itemSize);
+                umemstream is(fdm.constData(), fdm.size());
+                kaitai::kstream ks(&is);
+                insyde_fdm_t parsed(&ks);
+                UINT32 storeSize = (UINT32)fdm.size();
+
+                // Construct header and body
+                UByteArray header = fdm.left(parsed.data_offset());
+                UByteArray body = fdm.mid(header.size(), storeSize - header.size());
+
+                // Add info
+                name = UString("Insyde H2O FlashDeviceMap");
+                info = usprintf("Entry size: %Xh (%u)\nEntry format: %02Xh\nRevision: %02Xh\nExtension count: %u\nFlash descriptor base address: %08Xh\nChecksum: %02Xh",
+                                        parsed.entry_size(), parsed.entry_size(),
+                                        parsed.entry_format(),
+                                        parsed.revision(),
+                                        parsed.num_extensions(),
+                                        (UINT32)parsed.fd_base_address(),
+                                        parsed.checksum());
+
+                // Check header checksum
+                {
+                    UByteArray tempHeader = data.mid(itemOffset, sizeof(INSYDE_FLASH_DEVICE_MAP_HEADER));
+                    INSYDE_FLASH_DEVICE_MAP_HEADER* tempFdmHeader = (INSYDE_FLASH_DEVICE_MAP_HEADER*)tempHeader.data();
+                    tempFdmHeader->Checksum = 0;
+                    UINT8 calculated = calculateChecksum8((const UINT8*)tempFdmHeader, (UINT32)tempHeader.size());
+                    if (calculated == parsed.checksum()) {
+                        info += UString(", valid");
+                    }
+                    else {
+                        info += usprintf(", invalid, should be %02Xh", calculated);
+                    }
+                }
+
+                // Add board IDs
+                if (!parsed._is_null_board_id_maps()) {
+                    UINT32 mapIndex = 0;
+                    for (const auto & map : *parsed.board_id_maps()) {
+                        info += usprintf("\nMap #%u: region index %Xh, BoardId count %u",
+                                         mapIndex++,
+                                         map->region_index(),
+                                         map->num_board_ids());
+                        UINT32 i = 0;
+                        for (const auto & boardId : *map->board_ids()) {
+                            info += usprintf("\n  BoardId #%u: %" PRIX64, i++, boardId);
+                        }
+                    }
+                }
+
+                // Add header tree item
+                UModelIndex headerIndex = model->addItem(headerSize + itemOffset, Types::InsydeFlashDeviceMapStore, 0, name, UString(), info, header, body, UByteArray(), Fixed, index);
+
+                // Add entries
+                UINT32 entryOffset = parsed.data_offset();
+                bool protectedRangeFound = false;
+                for (const auto & entry : *parsed.entries()->entries()) {
+                    const EFI_GUID guid = readUnaligned((const EFI_GUID*)entry->guid().c_str());
+                    name = insydeFlashDeviceMapEntryTypeGuidToUString(guid);
+                    header = data.mid(itemOffset + entryOffset, sizeof(INSYDE_FLASH_DEVICE_MAP_ENTRY));
+                    body = data.mid(itemOffset + entryOffset + header.size(), parsed.entry_size() - header.size());
+
+                    // Add info
+                    UINT32 entrySize = (UINT32)header.size() + (UINT32)body.size();
+                    info = UString("Region type: ") + guidToUString(guid, false) + "\n";
+                    info += UString("Region id: ");
+                    for (UINT8 i = 0; i < 16; i++) {
+                        info += usprintf("%02X", *(const UINT8*)(entry->region_id().c_str() + i));
+                    }
+                    info += usprintf("\nRegion address: %08Xh\nRegion size: %08Xh\nAttributes: %08Xh (",
+                                     (UINT32)entry->region_base(),
+                                     (UINT32)entry->region_size(),
+                                     entry->attributes());
+
+                    // Add attributes
+                    const UINT32 attributes = entry->attributes();
+                    const UINT32 knownAttributes = INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MUTABLE | INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_IGNORE;
+                    bool needSeparator = false;
+                    if (attributes & INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MUTABLE) {
+                        info += UString("Mutable");
+                        needSeparator = true;
+                    }
+                    if (attributes & INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_IGNORE) {
+                        if (needSeparator) info += UString(", ");
+                        info += UString("Ignore");
+                        needSeparator = true;
+                    }
+                    if ((attributes & knownAttributes) == 0) {
+                        info += UString("HashVerified");
+                        needSeparator = true;
+                    }
+                    const UINT32 unknownAttributes = attributes & ~knownAttributes;
+                    if (unknownAttributes != 0) {
+                        if (needSeparator) info += UString(", ");
+                        info += usprintf("Unknown %08Xh", unknownAttributes);
+                        msg(usprintf("%s: FlashDeviceMap entry with unknown attributes %08Xh", __FUNCTION__, attributes), headerIndex);
+                    }
+                    info += UString(")");
+
+                    // Add hash
+                    info += UString("\nSHA256: ");
+                    for (UINT16 j = 0; j < (UINT16)body.size(); j++) {
+                        info += usprintf("%02X", (UINT8)body.constData()[j]);
+                    }
+
+                    if ((attributes & knownAttributes) == 0) {
+                        if (!protectedRangeFound) {
+                            securityInfo += usprintf("Insyde Flash Device Map found at base %08Xh\nProtected ranges:\n", model->base(headerIndex));
+                            protectedRangeFound = true;
+                        }
+
+                        // TODO: make sure that the only hash possible here is SHA256
+
+                        // Add this region to the list of Insyde protected regions
+                        PROTECTED_RANGE range = {};
+                        range.Offset = (UINT32)entry->region_base();
+                        range.Size = (UINT32)entry->region_size();
+                        range.AlgorithmId = TCG_HASH_ALGORITHM_ID_SHA256;
+                        range.Type = PROTECTED_RANGE_VENDOR_HASH_INSYDE;
+                        range.Hash = body;
+                        protectedRanges.push_back(range);
+
+                        securityInfo += usprintf("Address: %08Xh Size: %Xh\nHash: ", range.Offset, range.Size) + UString(body.toHex().constData()) + "\n";
+                    }
+
+                    // Add tree item
+                    model->addItem(entryOffset, Types::InsydeFlashDeviceMapEntry, 0, name, UString(), info, header, body, UByteArray(), Fixed, headerIndex);
+
+                    entryOffset += entrySize;
+                }
+
+                if (protectedRangeFound) {
+                    securityInfo += "\n";
+                }
+            }
+            catch (...) {
+                // Parsing failed, need to add the candidate as Padding
+                UByteArray padding = data.mid(itemOffset, itemSize);
+
+                // Add tree item
+                model->addItem(headerSize + itemOffset, Types::Padding, getPaddingType(padding), UString("Padding"), UString(), UString(), UByteArray(), padding, UByteArray(), Fixed, index);
             }
         }
         else {
@@ -1018,6 +1166,9 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
                 // Parsing already done
                 break;
             case Types::BpdtStore:
+                // Parsing already done
+                break;
+            case Types::InsydeFlashDeviceMapStore:
                 // Parsing already done
                 break;
             case Types::BpdtPartition:
@@ -1503,6 +1654,28 @@ continue_searching: {}
             nextItemType = Types::BpdtStore;
             nextItemSize = sizeCandidate;
             nextItemAlternativeSize = sizeCandidate;
+            nextItemOffset = offset;
+            break;
+        }
+        else if (readUnaligned(currentPos) == INSYDE_FLASH_DEVICE_MAP_SIGNATURE) {
+            // Check data size
+            if (restSize < sizeof(INSYDE_FLASH_DEVICE_MAP_HEADER))
+                continue;
+
+            const INSYDE_FLASH_DEVICE_MAP_HEADER *fdmHeader = (const INSYDE_FLASH_DEVICE_MAP_HEADER *)currentPos;
+
+            if (restSize < fdmHeader->Size)
+                continue;
+
+            if (fdmHeader->Revision > 4) {
+                msg(usprintf("%s: Insyde Flash Device Map candidate with unknown revision %u", __FUNCTION__, fdmHeader->Revision), index);
+                continue;
+            }
+
+            // All checks passed, FDM found
+            nextItemType = Types::InsydeFlashDeviceMapStore;
+            nextItemSize = fdmHeader->Size;
+            nextItemAlternativeSize = fdmHeader->Size;
             nextItemOffset = offset;
             break;
         }

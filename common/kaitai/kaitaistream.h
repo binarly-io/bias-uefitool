@@ -2,13 +2,20 @@
 #define KAITAI_STREAM_H
 
 // Kaitai Struct runtime API version: x.y.z = 'xxxyyyzzz' decimal
-#define KAITAI_STRUCT_VERSION 10000L
+#define KAITAI_STRUCT_VERSION 11000L
 
-#include <istream>
-#include <sstream>
-#include <stdint.h>
-#include <sys/types.h>
-#include <limits>
+// check for C++11 support - https://stackoverflow.com/a/40512515
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1900)
+#define KAITAI_STREAM_H_CPP11_SUPPORT
+#endif
+
+#include <stdint.h> // int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t
+
+#include <ios> // std::streamsize, forward declaration of std::istream  // IWYU pragma: keep
+#include <cstddef> // std::size_t
+#include <climits> // LLONG_MAX, ULLONG_MAX
+#include <sstream> // std::istringstream  // IWYU pragma: keep
+#include <string> // std::string
 
 namespace kaitai {
 
@@ -161,11 +168,13 @@ public:
     std::string read_bytes(std::streamsize len);
     std::string read_bytes_full();
     std::string read_bytes_term(char term, bool include, bool consume, bool eos_error);
+    std::string read_bytes_term_multi(std::string term, bool include, bool consume, bool eos_error);
     std::string ensure_fixed_contents(std::string expected);
 
     static std::string bytes_strip_right(std::string src, char pad_byte);
     static std::string bytes_terminate(std::string src, char term, bool include);
-    static std::string bytes_to_str(std::string src, std::string src_enc);
+    static std::string bytes_terminate_multi(std::string src, std::string term, bool include);
+    static std::string bytes_to_str(const std::string src, const char *src_enc);
 
     //@}
 
@@ -173,18 +182,18 @@ public:
     //@{
 
     /**
-     * Performs a XOR processing with given data, XORing every byte of input with a single
-     * given value.
+     * Performs XOR processing on the given data, XORing each byte of the input with a
+     * single-byte key.
      * @param data data to process
-     * @param key value to XOR with
+     * @param key byte value to XOR with
      * @return processed data
      */
     static std::string process_xor_one(std::string data, uint8_t key);
 
     /**
-     * Performs a XOR processing with given data, XORing every byte of input with a key
-     * array, repeating key array many times, if necessary (i.e. if data array is longer
-     * than key array).
+     * Performs XOR processing on the given data, XORing all bytes of the input with a
+     * multi-byte key, repeating the key as many times as necessary (if the input data is
+     * longer than the key).
      * @param data data to process
      * @param key array of bytes to XOR with
      * @return processed data
@@ -220,38 +229,96 @@ public:
      */
     static int mod(int a, int b);
 
+    // NB: the following 6 overloads of `to_string` are exactly the ones that
+    // [`std::to_string`](https://en.cppreference.com/w/cpp/string/basic_string/to_string) has.
+    // Testing has shown that they are all necessary: if you remove any of them, you will get
+    // something like `error: call to 'to_string' is ambiguous` when trying to call `to_string`
+    // with the integer type for which you removed the overload.
+
     /**
      * Converts given integer `val` to a decimal string representation.
-     * Should be used in place of std::to_string() (which is available only
+     * Should be used in place of `std::to_string(int)` (which is available only
      * since C++11) in older C++ implementations.
      */
-    template<typename I>
-// check for C++11 support - https://stackoverflow.com/a/40512515
-#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1900)
-    // https://stackoverflow.com/a/27913885
-    typename std::enable_if<
-            std::is_integral<I>::value &&
-            // check if we don't have something too large like GCC's `__int128_t`
-            std::numeric_limits<I>::max() >= 0 &&
-            std::numeric_limits<I>::max() <= std::numeric_limits<uint64_t>::max(),
-            std::string
-    >::type
-#else
-    std::string
-#endif
-    static to_string(I val) {
-        // in theory, `digits10 + 3` would be enough (minus sign + leading digit
-        // + null terminator), but let's add a little more to be safe
-        char buf[std::numeric_limits<I>::digits10 + 5];
-        if (val < 0) {
-            buf[0] = '-';
-            // get absolute value without undefined behavior (https://stackoverflow.com/a/12231604)
-            unsigned_to_decimal(-static_cast<uint64_t>(val), &buf[1]);
-        } else {
-            unsigned_to_decimal(val, buf);
-        }
-        return std::string(buf);
+    static std::string to_string(int val) {
+        return to_string_signed(val);
     }
+
+    /**
+     * Converts given integer `val` to a decimal string representation.
+     * Should be used in place of `std::to_string(long)` (which is available only
+     * since C++11) in older C++ implementations.
+     */
+    static std::string to_string(long val) {
+        return to_string_signed(val);
+    }
+
+// The `long long` type is technically available only since C++11. It is usually
+// supported even by ancient compilers that have very limited C++11 support, but we can
+// still check if the `LLONG_MAX` macro is defined (it seems very unlikely that it is not,
+// though).
+#ifdef LLONG_MAX
+    /**
+     * Converts given integer `val` to a decimal string representation.
+     * Should be used in place of `std::to_string(long long)` (which is available only
+     * since C++11) in older C++ implementations.
+     */
+    static std::string to_string(long long val) {
+        return to_string_signed(val);
+    }
+#endif
+
+    /**
+     * Converts given integer `val` to a decimal string representation.
+     * Should be used in place of `std::to_string(unsigned)` (which is available only
+     * since C++11) in older C++ implementations.
+     */
+    static std::string to_string(unsigned val) {
+        return to_string_unsigned(val);
+    }
+
+    /**
+     * Converts given integer `val` to a decimal string representation.
+     * Should be used in place of `std::to_string(unsigned long)` (which is available only
+     * since C++11) in older C++ implementations.
+     */
+    static std::string to_string(unsigned long val) {
+        return to_string_unsigned(val);
+    }
+
+// The `unsigned long long` type is technically available only since C++11. It is usually
+// supported even by ancient compilers that have very limited C++11 support, but we can
+// still check if the `LLONG_MAX` macro is defined (it seems very unlikely that it is not,
+// though).
+#ifdef ULLONG_MAX
+    /**
+     * Converts given integer `val` to a decimal string representation.
+     * Should be used in place of `std::to_string(unsigned long long)` (which is available only
+     * since C++11) in older C++ implementations.
+     */
+    static std::string to_string(unsigned long long val) {
+        return to_string_unsigned(val);
+    }
+#endif
+
+    /**
+     * Converts string `str` to an integer value. Throws an exception if the
+     * string is not a valid integer.
+     *
+     * This one is supposed to mirror `std::stoll()` (which is available only
+     * since C++11) in older C++ implementations.
+     *
+     * Major difference between standard `std::stoll()` and `string_to_int()`
+     * is that this one does not perform any partial conversions and always
+     * throws `std::invalid_argument` if the string is not a valid integer.
+     *
+     * @param str String to convert
+     * @param base Base of the integer (default: 10)
+     * @throws std::invalid_argument if the string is not a valid integer
+     * @throws std::out_of_range if the integer is out of range
+     * @return Integer value of the string
+     */
+    static int64_t string_to_int(const std::string& str, int base = 10);
 
     /**
      * Reverses given string `val`, so that the first character becomes the
@@ -285,7 +352,35 @@ private:
     void init();
     void exceptions_enable() const;
 
-    static void unsigned_to_decimal(uint64_t number, char *buffer);
+    static void unsigned_to_decimal(uint64_t number, char *buf, std::size_t &buf_contents_start);
+    static std::string to_string_signed(int64_t val);
+    static std::string to_string_unsigned(uint64_t val);
+
+#ifdef KS_STR_ENCODING_WIN32API
+    enum {
+        KAITAI_CP_UNSUPPORTED = -1,
+        KAITAI_CP_UTF16LE = -2,
+        KAITAI_CP_UTF16BE = -3,
+    };
+
+    /**
+     * Converts string name of the encoding into a Windows codepage number. We extend standard Windows codepage list
+     * with a few special meanings (see KAITAI_CP_* enum), reserving negative values of integer for that.
+     * @param src_enc string name of the encoding; this should match canonical name of the encoding as per discussion
+     *     in https://github.com/kaitai-io/kaitai_struct/issues/116
+     * @return Windows codepage number or member of KAITAI_CP_* enum.
+     * @ref https://learn.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
+     */
+    static int encoding_to_win_codepage(const char *src_enc);
+
+    /**
+     * Converts bytes packed in std::string into a UTF-8 string, based on given source encoding indicated by `codepage`.
+     * @param src bytes to be converted
+     * @param codepage Windows codepage number or member of KAITAI_CP_* enum.
+     * @return UTF-8 string
+     */
+    static std::string bytes_to_str(const std::string src, int codepage);
+#endif
 
     static const int ZLIB_BUF_SIZE = 128 * 1024;
 };

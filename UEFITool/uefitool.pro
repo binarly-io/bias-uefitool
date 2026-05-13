@@ -52,6 +52,7 @@ HEADERS += uefitool.h \
  ../common/digest/sha2.h \
  ../common/digest/sm3.h \
  ../common/generated/ami_nvar.h \
+ ../common/generated/insyde_fdm.h \
  ../common/generated/intel_acbp_v1.h \
  ../common/generated/intel_acbp_v2.h \
  ../common/generated/intel_keym_v1.h \
@@ -118,6 +119,7 @@ SOURCES += uefitool_main.cpp \
  ../common/digest/sha512.c \
  ../common/digest/sm3.c \
  ../common/generated/ami_nvar.cpp \
+ ../common/generated/insyde_fdm.cpp \
  ../common/generated/intel_acbp_v1.cpp \
  ../common/generated/intel_acbp_v2.cpp \
  ../common/generated/intel_keym_v1.cpp \
