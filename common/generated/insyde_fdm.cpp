@@ -7,11 +7,11 @@ insyde_fdm_t::insyde_fdm_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent, i
     m__root = p__root ? p__root : this;
     m_extensions = nullptr;
     m__io__raw_extensions = nullptr;
+    m_board_id_maps = nullptr;
     m_entries = nullptr;
     m__io__raw_entries = nullptr;
-    f_entries = false;
-    m_board_id_maps = nullptr;
     f_board_id_maps = false;
+    f_entries = false;
     _read();
 }
 
@@ -41,9 +41,9 @@ insyde_fdm_t::~insyde_fdm_t() {
 void insyde_fdm_t::_clean_up() {
     if (!n_extensions) {
     }
-    if (f_entries) {
-    }
     if (f_board_id_maps && !n_board_id_maps) {
+    }
+    if (f_entries) {
     }
 }
 
@@ -170,19 +170,6 @@ insyde_fdm_t::fdm_extensions_t::~fdm_extensions_t() {
 void insyde_fdm_t::fdm_extensions_t::_clean_up() {
 }
 
-insyde_fdm_t::fdm_entries_t* insyde_fdm_t::entries() {
-    if (f_entries)
-        return m_entries.get();
-    std::streampos _pos = m__io->pos();
-    m__io->seek(data_offset());
-    m__raw_entries = m__io->read_bytes((store_size() - data_offset()));
-    m__io__raw_entries = std::unique_ptr<kaitai::kstream>(new kaitai::kstream(m__raw_entries));
-    m_entries = std::unique_ptr<fdm_entries_t>(new fdm_entries_t(m__io__raw_entries.get(), this, m__root));
-    m__io->seek(_pos);
-    f_entries = true;
-    return m_entries.get();
-}
-
 std::vector<std::unique_ptr<insyde_fdm_t::fdm_board_id_map_t>>* insyde_fdm_t::board_id_maps() {
     if (f_board_id_maps)
         return m_board_id_maps.get();
@@ -200,4 +187,17 @@ std::vector<std::unique_ptr<insyde_fdm_t::fdm_board_id_map_t>>* insyde_fdm_t::bo
         m__io->seek(_pos);
     }
     return m_board_id_maps.get();
+}
+
+insyde_fdm_t::fdm_entries_t* insyde_fdm_t::entries() {
+    if (f_entries)
+        return m_entries.get();
+    f_entries = true;
+    std::streampos _pos = m__io->pos();
+    m__io->seek(data_offset());
+    m__raw_entries = m__io->read_bytes(store_size() - data_offset());
+    m__io__raw_entries = std::unique_ptr<kaitai::kstream>(new kaitai::kstream(m__raw_entries));
+    m_entries = std::unique_ptr<fdm_entries_t>(new fdm_entries_t(m__io__raw_entries.get(), this, m__root));
+    m__io->seek(_pos);
+    return m_entries.get();
 }

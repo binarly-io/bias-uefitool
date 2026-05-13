@@ -9,8 +9,8 @@ class insyde_fdm_t;
 #include <memory>
 #include <vector>
 
-#if KAITAI_STRUCT_VERSION < 9000L
-#error "Incompatible Kaitai Struct C++/STL API: version 0.9 or later is required"
+#if KAITAI_STRUCT_VERSION < 11000L
+#error "Incompatible Kaitai Struct C++/STL API: version 0.11 or later is required"
 #endif
 
 class insyde_fdm_t : public kaitai::kstruct {
@@ -175,13 +175,6 @@ public:
     };
 
 private:
-    bool f_entries;
-    std::unique_ptr<fdm_entries_t> m_entries;
-
-public:
-    fdm_entries_t* entries();
-
-private:
     bool f_board_id_maps;
     std::unique_ptr<std::vector<std::unique_ptr<fdm_board_id_map_t>>> m_board_id_maps;
     bool n_board_id_maps;
@@ -193,6 +186,13 @@ private:
 
 public:
     std::vector<std::unique_ptr<fdm_board_id_map_t>>* board_id_maps();
+
+private:
+    bool f_entries;
+    std::unique_ptr<fdm_entries_t> m_entries;
+
+public:
+    fdm_entries_t* entries();
 
 private:
     uint32_t m_signature;

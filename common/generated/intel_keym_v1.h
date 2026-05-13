@@ -2,25 +2,34 @@
 
 // This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
 
+class intel_keym_v1_t;
+
 #include "../kaitai/kaitaistruct.h"
 #include <stdint.h>
 #include <memory>
+#include <set>
 
-#if KAITAI_STRUCT_VERSION < 9000L
-#error "Incompatible Kaitai Struct C++/STL API: version 0.9 or later is required"
+#if KAITAI_STRUCT_VERSION < 11000L
+#error "Incompatible Kaitai Struct C++/STL API: version 0.11 or later is required"
 #endif
 
 class intel_keym_v1_t : public kaitai::kstruct {
 
 public:
+    class key_signature_t;
     class km_hash_t;
     class public_key_t;
     class signature_t;
-    class key_signature_t;
 
     enum structure_ids_t : uint64_t {
         STRUCTURE_IDS_KEYM = 6872296602200661855LL
     };
+    static bool _is_defined_structure_ids_t(structure_ids_t v);
+
+private:
+    static const std::set<structure_ids_t> _values_structure_ids_t;
+
+public:
 
     intel_keym_v1_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent = nullptr, intel_keym_v1_t* p__root = nullptr);
 
@@ -30,6 +39,38 @@ private:
 
 public:
     ~intel_keym_v1_t();
+
+    class key_signature_t : public kaitai::kstruct {
+
+    public:
+
+        key_signature_t(kaitai::kstream* p__io, intel_keym_v1_t* p__parent = nullptr, intel_keym_v1_t* p__root = nullptr);
+
+    private:
+        void _read();
+        void _clean_up();
+
+    public:
+        ~key_signature_t();
+
+    private:
+        uint8_t m_version;
+        uint16_t m_key_id;
+        std::unique_ptr<public_key_t> m_public_key;
+        uint16_t m_sig_scheme;
+        std::unique_ptr<signature_t> m_signature;
+        intel_keym_v1_t* m__root;
+        intel_keym_v1_t* m__parent;
+
+    public:
+        uint8_t version() const { return m_version; }
+        uint16_t key_id() const { return m_key_id; }
+        public_key_t* public_key() const { return m_public_key.get(); }
+        uint16_t sig_scheme() const { return m_sig_scheme; }
+        signature_t* signature() const { return m_signature.get(); }
+        intel_keym_v1_t* _root() const { return m__root; }
+        intel_keym_v1_t* _parent() const { return m__parent; }
+    };
 
     class km_hash_t : public kaitai::kstruct {
 
@@ -117,38 +158,6 @@ public:
         std::string signature() const { return m_signature; }
         intel_keym_v1_t* _root() const { return m__root; }
         intel_keym_v1_t::key_signature_t* _parent() const { return m__parent; }
-    };
-
-    class key_signature_t : public kaitai::kstruct {
-
-    public:
-
-        key_signature_t(kaitai::kstream* p__io, intel_keym_v1_t* p__parent = nullptr, intel_keym_v1_t* p__root = nullptr);
-
-    private:
-        void _read();
-        void _clean_up();
-
-    public:
-        ~key_signature_t();
-
-    private:
-        uint8_t m_version;
-        uint16_t m_key_id;
-        std::unique_ptr<public_key_t> m_public_key;
-        uint16_t m_sig_scheme;
-        std::unique_ptr<signature_t> m_signature;
-        intel_keym_v1_t* m__root;
-        intel_keym_v1_t* m__parent;
-
-    public:
-        uint8_t version() const { return m_version; }
-        uint16_t key_id() const { return m_key_id; }
-        public_key_t* public_key() const { return m_public_key.get(); }
-        uint16_t sig_scheme() const { return m_sig_scheme; }
-        signature_t* signature() const { return m_signature.get(); }
-        intel_keym_v1_t* _root() const { return m__root; }
-        intel_keym_v1_t* _parent() const { return m__parent; }
     };
 
 private:
