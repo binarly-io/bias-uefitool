@@ -1020,13 +1020,17 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
                 }
 
                 // Add board IDs
-                if (!parsed._is_null_board_ids()) {
-                    info += usprintf("\nRegion index: %Xh\nBoardId Count: %u",
-                                     parsed.board_ids()->region_index(),
-                                     parsed.board_ids()->num_board_ids());
-                    UINT32 i = 0;
-                    for (const auto & boardId : *parsed.board_ids()->board_ids()) {
-                        info += usprintf("\nBoardId #%u: %" PRIX64 "\n", i++, boardId);
+                if (!parsed._is_null_board_id_maps()) {
+                    UINT32 mapIndex = 0;
+                    for (const auto & map : *parsed.board_id_maps()) {
+                        info += usprintf("\nMap #%u: region index %Xh, BoardId count %u",
+                                         mapIndex++,
+                                         map->region_index(),
+                                         map->num_board_ids());
+                        UINT32 i = 0;
+                        for (const auto & boardId : *map->board_ids()) {
+                            info += usprintf("\n  BoardId #%u: %" PRIX64, i++, boardId);
+                        }
                     }
                 }
 
@@ -1039,7 +1043,6 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
                 for (const auto & entry : *parsed.entries()->entries()) {
                     const EFI_GUID guid = readUnaligned((const EFI_GUID*)entry->guid().c_str());
                     name = insydeFlashDeviceMapEntryTypeGuidToUString(guid);
-                    UString text;
                     header = data.mid(itemOffset + entryOffset, sizeof(INSYDE_FLASH_DEVICE_MAP_ENTRY));
                     body = data.mid(itemOffset + entryOffset + header.size(), parsed.entry_size() - header.size());
 
@@ -1055,16 +1058,28 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
                                      (UINT32)entry->region_size(),
                                      entry->attributes());
 
-                    // Add atributes
-                    if ((entry->attributes() & INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MODIFIABLE) == 0) {
+                    // Add attributes
+                    const UINT32 attributes = entry->attributes();
+                    const UINT32 knownAttributes = INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MUTABLE | INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_IGNORE;
+                    bool needSeparator = false;
+                    if (attributes & INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MUTABLE) {
+                        info += UString("Mutable");
+                        needSeparator = true;
+                    }
+                    if (attributes & INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_IGNORE) {
+                        if (needSeparator) info += UString(", ");
+                        info += UString("Ignore");
+                        needSeparator = true;
+                    }
+                    if ((attributes & knownAttributes) == 0) {
                         info += UString("HashVerified");
+                        needSeparator = true;
                     }
-                    else if ((entry->attributes() & INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MODIFIABLE) == INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MODIFIABLE) {
-                        info += UString("HashIgnored");
-                    }
-                    else if (entry->attributes() > INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MODIFIABLE) {
-                        info += usprintf(", Unknown %08X", entry->attributes() - INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MODIFIABLE);
-                        msg(usprintf("%s: FlashDeviceMap entry with unknown attributes %08X", __FUNCTION__, entry->attributes()), headerIndex);
+                    const UINT32 unknownAttributes = attributes & ~knownAttributes;
+                    if (unknownAttributes != 0) {
+                        if (needSeparator) info += UString(", ");
+                        info += usprintf("Unknown %08Xh", unknownAttributes);
+                        msg(usprintf("%s: FlashDeviceMap entry with unknown attributes %08Xh", __FUNCTION__, attributes), headerIndex);
                     }
                     info += UString(")");
 
@@ -1074,7 +1089,7 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
                         info += usprintf("%02X", (UINT8)body.constData()[j]);
                     }
 
-                    if ((entry->attributes() & INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MODIFIABLE) == 0) {
+                    if ((attributes & knownAttributes) == 0) {
                         if (!protectedRangeFound) {
                             securityInfo += usprintf("Insyde Flash Device Map found at base %08Xh\nProtected ranges:\n", model->base(headerIndex));
                             protectedRangeFound = true;
@@ -1095,7 +1110,7 @@ USTATUS FfsParser::parseRawArea(const UModelIndex & index)
                     }
 
                     // Add tree item
-                    model->addItem(entryOffset, Types::InsydeFlashDeviceMapEntry, 0, name, text, info, header, body, UByteArray(), Fixed, headerIndex);
+                    model->addItem(entryOffset, Types::InsydeFlashDeviceMapEntry, 0, name, UString(), info, header, body, UByteArray(), Fixed, headerIndex);
 
                     entryOffset += entrySize;
                 }

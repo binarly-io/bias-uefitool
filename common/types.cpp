@@ -59,14 +59,14 @@ UString itemTypeToUString(const UINT8 type)
         case Types::EvsaStore:             return UString("EVSA store");
         case Types::CmdbStore:             return UString("CMDB store");
         case Types::FlashMapStore:         return UString("FlashMap store");
-        case Types::InsydeFlashDeviceMapStore:  return UString("FlashDeviceMap store");
+        case Types::InsydeFlashDeviceMapStore: return UString("FlashDeviceMap store");
         case Types::NvarGuidStore:         return UString("NVAR GUID store");
         case Types::NvarEntry:             return UString("NVAR entry");
         case Types::VssEntry:              return UString("VSS entry");
         case Types::FsysEntry:             return UString("Fsys entry");
         case Types::EvsaEntry:             return UString("EVSA entry");
         case Types::FlashMapEntry:         return UString("FlashMap entry");
-        case Types::InsydeFlashDeviceMapEntry:  return UString("FlashDeviceMap entry");
+        case Types::InsydeFlashDeviceMapEntry: return UString("FlashDeviceMap entry");
         case Types::Microcode:             return UString("Microcode");
         case Types::SlicData:              return UString("SLIC data");
         case Types::FptStore:              return UString("FPT store");

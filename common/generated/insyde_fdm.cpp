@@ -7,9 +7,11 @@ insyde_fdm_t::insyde_fdm_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent, i
     m__root = p__root ? p__root : this;
     m_extensions = nullptr;
     m__io__raw_extensions = nullptr;
-    m_board_ids = nullptr;
     m_entries = nullptr;
     m__io__raw_entries = nullptr;
+    f_entries = false;
+    m_board_id_maps = nullptr;
+    f_board_id_maps = false;
     _read();
 }
 
@@ -30,14 +32,6 @@ void insyde_fdm_t::_read() {
         m__io__raw_extensions = std::unique_ptr<kaitai::kstream>(new kaitai::kstream(m__raw_extensions));
         m_extensions = std::unique_ptr<fdm_extensions_t>(new fdm_extensions_t(m__io__raw_extensions.get(), this, m__root));
     }
-    n_board_ids = true;
-    if ( ((revision() > 2) && (extensions()->extensions()->at(1)->count() > 0)) ) {
-        n_board_ids = false;
-        m_board_ids = std::unique_ptr<fdm_board_ids_t>(new fdm_board_ids_t(m__io, this, m__root));
-    }
-    m__raw_entries = m__io->read_bytes(store_size() - data_offset());
-    m__io__raw_entries = std::unique_ptr<kaitai::kstream>(new kaitai::kstream(m__raw_entries));
-    m_entries = std::unique_ptr<fdm_entries_t>(new fdm_entries_t(m__io__raw_entries.get(), this, m__root));
 }
 
 insyde_fdm_t::~insyde_fdm_t() {
@@ -47,18 +41,20 @@ insyde_fdm_t::~insyde_fdm_t() {
 void insyde_fdm_t::_clean_up() {
     if (!n_extensions) {
     }
-    if (!n_board_ids) {
+    if (f_entries) {
+    }
+    if (f_board_id_maps && !n_board_id_maps) {
     }
 }
 
-insyde_fdm_t::fdm_board_ids_t::fdm_board_ids_t(kaitai::kstream* p__io, insyde_fdm_t* p__parent, insyde_fdm_t* p__root) : kaitai::kstruct(p__io) {
+insyde_fdm_t::fdm_board_id_map_t::fdm_board_id_map_t(kaitai::kstream* p__io, insyde_fdm_t* p__parent, insyde_fdm_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = p__root;
     m_board_ids = nullptr;
     _read();
 }
 
-void insyde_fdm_t::fdm_board_ids_t::_read() {
+void insyde_fdm_t::fdm_board_id_map_t::_read() {
     m_region_index = m__io->read_u4le();
     m_num_board_ids = m__io->read_u4le();
     m_board_ids = std::unique_ptr<std::vector<uint64_t>>(new std::vector<uint64_t>());
@@ -68,11 +64,11 @@ void insyde_fdm_t::fdm_board_ids_t::_read() {
     }
 }
 
-insyde_fdm_t::fdm_board_ids_t::~fdm_board_ids_t() {
+insyde_fdm_t::fdm_board_id_map_t::~fdm_board_id_map_t() {
     _clean_up();
 }
 
-void insyde_fdm_t::fdm_board_ids_t::_clean_up() {
+void insyde_fdm_t::fdm_board_id_map_t::_clean_up() {
 }
 
 insyde_fdm_t::fdm_entries_t::fdm_entries_t(kaitai::kstream* p__io, insyde_fdm_t* p__parent, insyde_fdm_t* p__root) : kaitai::kstruct(p__io) {
@@ -172,4 +168,36 @@ insyde_fdm_t::fdm_extensions_t::~fdm_extensions_t() {
 }
 
 void insyde_fdm_t::fdm_extensions_t::_clean_up() {
+}
+
+insyde_fdm_t::fdm_entries_t* insyde_fdm_t::entries() {
+    if (f_entries)
+        return m_entries.get();
+    std::streampos _pos = m__io->pos();
+    m__io->seek(data_offset());
+    m__raw_entries = m__io->read_bytes((store_size() - data_offset()));
+    m__io__raw_entries = std::unique_ptr<kaitai::kstream>(new kaitai::kstream(m__raw_entries));
+    m_entries = std::unique_ptr<fdm_entries_t>(new fdm_entries_t(m__io__raw_entries.get(), this, m__root));
+    m__io->seek(_pos);
+    f_entries = true;
+    return m_entries.get();
+}
+
+std::vector<std::unique_ptr<insyde_fdm_t::fdm_board_id_map_t>>* insyde_fdm_t::board_id_maps() {
+    if (f_board_id_maps)
+        return m_board_id_maps.get();
+    f_board_id_maps = true;
+    n_board_id_maps = true;
+    if ( ((revision() > 2) && (num_extensions() > 1) && (extensions()->extensions()->at(1)->count() > 0)) ) {
+        n_board_id_maps = false;
+        std::streampos _pos = m__io->pos();
+        m__io->seek(extensions()->extensions()->at(1)->offset());
+        m_board_id_maps = std::unique_ptr<std::vector<std::unique_ptr<fdm_board_id_map_t>>>(new std::vector<std::unique_ptr<fdm_board_id_map_t>>());
+        const int l_board_id_maps = extensions()->extensions()->at(1)->count();
+        for (int i = 0; i < l_board_id_maps; i++) {
+            m_board_id_maps->push_back(std::move(std::unique_ptr<fdm_board_id_map_t>(new fdm_board_id_map_t(m__io, this, m__root))));
+        }
+        m__io->seek(_pos);
+    }
+    return m_board_id_maps.get();
 }

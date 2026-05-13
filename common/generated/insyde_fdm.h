@@ -16,7 +16,7 @@ class insyde_fdm_t;
 class insyde_fdm_t : public kaitai::kstruct {
 
 public:
-    class fdm_board_ids_t;
+    class fdm_board_id_map_t;
     class fdm_entries_t;
     class fdm_entry_t;
     class fdm_extension_t;
@@ -31,18 +31,18 @@ private:
 public:
     ~insyde_fdm_t();
 
-    class fdm_board_ids_t : public kaitai::kstruct {
+    class fdm_board_id_map_t : public kaitai::kstruct {
 
     public:
 
-        fdm_board_ids_t(kaitai::kstream* p__io, insyde_fdm_t* p__parent = nullptr, insyde_fdm_t* p__root = nullptr);
+        fdm_board_id_map_t(kaitai::kstream* p__io, insyde_fdm_t* p__parent = nullptr, insyde_fdm_t* p__root = nullptr);
 
     private:
         void _read();
         void _clean_up();
 
     public:
-        ~fdm_board_ids_t();
+        ~fdm_board_id_map_t();
 
     private:
         uint32_t m_region_index;
@@ -175,6 +175,26 @@ public:
     };
 
 private:
+    bool f_entries;
+    std::unique_ptr<fdm_entries_t> m_entries;
+
+public:
+    fdm_entries_t* entries();
+
+private:
+    bool f_board_id_maps;
+    std::unique_ptr<std::vector<std::unique_ptr<fdm_board_id_map_t>>> m_board_id_maps;
+    bool n_board_id_maps;
+
+public:
+    bool _is_null_board_id_maps() { board_id_maps(); return n_board_id_maps; };
+
+private:
+
+public:
+    std::vector<std::unique_ptr<fdm_board_id_map_t>>* board_id_maps();
+
+private:
     uint32_t m_signature;
     uint32_t m_store_size;
     uint32_t m_data_offset;
@@ -191,14 +211,6 @@ public:
     bool _is_null_extensions() { extensions(); return n_extensions; };
 
 private:
-    std::unique_ptr<fdm_board_ids_t> m_board_ids;
-    bool n_board_ids;
-
-public:
-    bool _is_null_board_ids() { board_ids(); return n_board_ids; };
-
-private:
-    std::unique_ptr<fdm_entries_t> m_entries;
     insyde_fdm_t* m__root;
     kaitai::kstruct* m__parent;
     std::string m__raw_extensions;
@@ -223,8 +235,6 @@ public:
     uint8_t checksum() const { return m_checksum; }
     uint64_t fd_base_address() const { return m_fd_base_address; }
     fdm_extensions_t* extensions() const { return m_extensions.get(); }
-    fdm_board_ids_t* board_ids() const { return m_board_ids.get(); }
-    fdm_entries_t* entries() const { return m_entries.get(); }
     insyde_fdm_t* _root() const { return m__root; }
     kaitai::kstruct* _parent() const { return m__parent; }
     std::string _raw_extensions() const { return m__raw_extensions; }

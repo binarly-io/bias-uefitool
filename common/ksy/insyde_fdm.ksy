@@ -32,13 +32,18 @@ seq:
   type: fdm_extensions
   size: num_extensions * sizeof<fdm_extension>
   if: revision > 2
-- id: board_ids
-  type: fdm_board_ids
-  if: revision > 2 and extensions.extensions[1].count > 0
-#TODO: need to find a sample with revision == 4 and extensions.extensions[2].count > 0
-- id: entries
+
+instances:
+ entries:
+  pos: data_offset
   type: fdm_entries
   size: store_size - data_offset
+ board_id_maps:
+  pos: extensions.extensions[1].offset
+  type: fdm_board_id_map
+  repeat: expr
+  repeat-expr: extensions.extensions[1].count
+  if: revision > 2 and num_extensions > 1 and extensions.extensions[1].count > 0
 
 types:
  fdm_extensions:
@@ -54,7 +59,7 @@ types:
   - id: count
     type: u2
 
- fdm_board_ids:
+ fdm_board_id_map:
   seq:
   - id: region_index
     type: u4

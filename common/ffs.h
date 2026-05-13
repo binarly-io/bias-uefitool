@@ -906,7 +906,8 @@ typedef struct _INSYDE_FLASH_DEVICE_MAP_BOARD_ID_MAP {
 //UINT64 BoardIds[Count];
 } INSYDE_FLASH_DEVICE_MAP_BOARD_ID_MAP;
 
-#define INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MODIFIABLE 0x00000001
+#define INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_MUTABLE 0x00000001 // region contents can be updated without updating the corresponding hash value
+#define INSYDE_FLASH_DEVICE_MAP_ENTRY_ATTRIBUTE_IGNORE 0x00000002 // region contents should be ignored
 
 extern const UByteArray INSYDE_FLASH_MAP_REGION_AUX_FV_GUID;
 extern const UByteArray INSYDE_FLASH_MAP_REGION_BOOT_FV_GUID;
