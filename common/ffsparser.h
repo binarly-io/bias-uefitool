@@ -96,7 +96,8 @@ public:
     UString getSecurityInfo() const;
 
     // Obtain offset/address difference
-    UINT64 getAddressDiff() { return addressDiff; }
+    UINT64 getAddressDiff() const { return addressDiff; }
+    std::vector<std::pair<UModelIndex, UINT64> > getIndexesAddressDiffs() const { return indexesAddressDiffs; }
 
     // Output some info to stdout
     void outputInfo(void);
@@ -116,6 +117,7 @@ private:
     UModelIndex lastVtf;
     UINT32 imageBase;
     UINT64 addressDiff;
+    std::vector<std::pair<UModelIndex, UINT64> > indexesAddressDiffs;
     
     UString securityInfo;
 

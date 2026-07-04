@@ -87,6 +87,7 @@ USTATUS FfsParser::parse(const UByteArray & buffer)
     openedImage = buffer;
     imageBase = 0;
     addressDiff = 0x100000000ULL;
+    indexesAddressDiffs.clear();
     protectedRegionsBase = 0;
     securityInfo = "";
     protectedRanges.clear();

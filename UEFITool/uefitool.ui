@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>851</width>
+    <width>850</width>
     <height>586</height>
    </rect>
   </property>
@@ -24,285 +24,241 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_1">
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <property name="leftMargin">
-     <number>5</number>
-    </property>
-    <property name="topMargin">
-     <number>5</number>
-    </property>
-    <property name="rightMargin">
-     <number>5</number>
-    </property>
-    <property name="bottomMargin">
-     <number>5</number>
-    </property>
-    <item>
-     <widget class="QSplitter" name="messagesSplitter">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <widget class="QSplitter" name="infoSplitter">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>0</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
+   </property>
+  </widget>
+  <widget class="QDockWidget" name="structureTreeDock">
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::DockWidgetClosable|QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::DockWidgetArea::LeftDockWidgetArea|Qt::DockWidgetArea::RightDockWidgetArea|Qt::DockWidgetArea::TopDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Structure</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="structureTreeWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTreeView" name="structureTreeView">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-       <widget class="QGroupBox" name="structureGroupBox">
-        <property name="title">
-         <string>Structure</string>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QTreeView" name="structureTreeView">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="indentation">
-            <number>10</number>
-           </property>
-           <property name="headerHidden">
-            <bool>false</bool>
-           </property>
-           <attribute name="headerCascadingSectionResizes">
-            <bool>true</bool>
-           </attribute>
-           <attribute name="headerDefaultSectionSize">
-            <number>200</number>
-           </attribute>
-           <attribute name="headerStretchLastSection">
-            <bool>true</bool>
-           </attribute>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QGroupBox" name="infoGroupBox">
-        <property name="title">
-         <string>Information</string>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QPlainTextEdit" name="infoEdit">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="undoRedoEnabled">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
+       <property name="indentation">
+        <number>10</number>
+       </property>
+       <property name="headerHidden">
+        <bool>false</bool>
+       </property>
+       <attribute name="headerCascadingSectionResizes">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="headerDefaultSectionSize">
+        <number>200</number>
+       </attribute>
+       <attribute name="headerStretchLastSection">
+        <bool>true</bool>
+       </attribute>
       </widget>
-      <widget class="QTabWidget" name="messagesTabWidget">
-       <property name="enabled">
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="infoDock">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::DockWidgetClosable|QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::DockWidgetArea::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>Information</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="infoWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QPlainTextEdit" name="infoEdit">
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="undoRedoEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="readOnly">
         <bool>true</bool>
        </property>
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <widget class="QWidget" name="parserTab">
-        <attribute name="title">
-         <string>Parser</string>
-        </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QListWidget" name="parserMessagesListWidget">
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="fitTab">
-        <attribute name="title">
-         <string>FIT</string>
-        </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QSplitter" name="splitter">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <widget class="QTableWidget" name="fitTableWidget"/>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="securityTab">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <attribute name="title">
-         <string>Security</string>
-        </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QPlainTextEdit" name="securityEdit">
-           <property name="acceptDrops">
-            <bool>false</bool>
-           </property>
-           <property name="undoRedoEnabled">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="finderTab">
-        <attribute name="title">
-         <string>Search</string>
-        </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QListWidget" name="finderMessagesListWidget">
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="builderTab">
-        <attribute name="title">
-         <string>Builder</string>
-        </attribute>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QListWidget" name="builderMessagesListWidget">
-           <property name="mouseTracking">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
       </widget>
-     </widget>
-    </item>
-   </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="parserMessagesDock">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::DockWidgetClosable|QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::DockWidgetArea::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>Parser</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="parserMessagesWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QListWidget" name="parserMessagesListWidget">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="fitDock">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::DockWidgetClosable|QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::DockWidgetArea::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>FIT</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="fitWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QTableWidget" name="fitTableWidget"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="securityDock">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::DockWidgetClosable|QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::DockWidgetArea::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>Security</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="securityWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <item>
+      <widget class="QPlainTextEdit" name="securityEdit">
+       <property name="acceptDrops">
+        <bool>false</bool>
+       </property>
+       <property name="undoRedoEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="finderMessagesDock">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::DockWidgetClosable|QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::DockWidgetArea::AllDockWidgetAreas</set>
+   </property>
+   <property name="windowTitle">
+    <string>Search</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="finderMessagesWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <item>
+      <widget class="QListWidget" name="finderMessagesListWidget">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="builderMessagesDock">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFeature::DockWidgetClosable|QDockWidget::DockWidgetFeature::DockWidgetFloatable|QDockWidget::DockWidgetFeature::DockWidgetMovable</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::DockWidgetArea::BottomDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Builder</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="builderMessagesWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_7">
+     <item>
+      <widget class="QListWidget" name="builderMessagesListWidget">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="hexViewDock">
+   <property name="windowTitle">
+    <string>Hex view</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="hexViewWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_8"/>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">
@@ -310,8 +266,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>851</width>
-     <height>31</height>
+     <width>850</width>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -329,6 +285,8 @@
     <addaction name="actionUnloadGuidDatabase"/>
     <addaction name="actionExportDiscoveredGuids"/>
     <addaction name="separator"/>
+    <addaction name="actionClearRecentlyOpenedFilesList"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -342,10 +300,49 @@
     <property name="title">
      <string>&amp;Action</string>
     </property>
-    <widget class="QMenu" name="menuCapsuleActions">
-     <property name="enabled">
-      <bool>false</bool>
+    <widget class="QMenu" name="menuHashActions">
+     <property name="title">
+      <string>&amp;Hash</string>
      </property>
+     <addaction name="actionHashCrc32"/>
+     <addaction name="separator"/>
+     <addaction name="actionHashSha1"/>
+     <addaction name="separator"/>
+     <addaction name="actionHashSha256"/>
+     <addaction name="actionHashSha384"/>
+     <addaction name="actionHashSha512"/>
+     <addaction name="separator"/>
+     <addaction name="actionHashSm3"/>
+    </widget>
+    <widget class="QMenu" name="menuHashBodyActions">
+     <property name="title">
+      <string>Hash &amp;body</string>
+     </property>
+     <addaction name="actionBodyHashCrc32"/>
+     <addaction name="separator"/>
+     <addaction name="actionBodyHashSha1"/>
+     <addaction name="separator"/>
+     <addaction name="actionBodyHashSha256"/>
+     <addaction name="actionBodyHashSha384"/>
+     <addaction name="actionBodyHashSha512"/>
+     <addaction name="separator"/>
+     <addaction name="actionBodyHashSm3"/>
+    </widget>
+    <widget class="QMenu" name="menuHashUncompressedActions">
+     <property name="title">
+      <string>Hash &amp;uncompressed</string>
+     </property>
+     <addaction name="actionUncompressedHashCrc32"/>
+     <addaction name="separator"/>
+     <addaction name="actionUncompressedHashSha1"/>
+     <addaction name="separator"/>
+     <addaction name="actionUncompressedHashSha256"/>
+     <addaction name="actionUncompressedHashSha384"/>
+     <addaction name="actionUncompressedHashSha512"/>
+     <addaction name="separator"/>
+     <addaction name="actionUncompressedHashSm3"/>
+    </widget>
+    <widget class="QMenu" name="menuCapsuleActions">
      <property name="title">
       <string>&amp;Capsule</string>
      </property>
@@ -353,28 +350,30 @@
      <addaction name="actionBodyHexView"/>
      <addaction name="actionUncompressedHexView"/>
      <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
+     <addaction name="menuHashBodyActions"/>
+     <addaction name="menuHashUncompressedActions"/>
+     <addaction name="separator"/>
      <addaction name="actionExtract"/>
      <addaction name="actionExtractBody"/>
     </widget>
     <widget class="QMenu" name="menuImageActions">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>&amp;Image</string>
      </property>
      <addaction name="actionHexView"/>
      <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
+     <addaction name="separator"/>
      <addaction name="actionExtract"/>
     </widget>
     <widget class="QMenu" name="menuRegionActions">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>&amp;Region</string>
      </property>
      <addaction name="actionHexView"/>
+     <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
      <addaction name="separator"/>
      <addaction name="actionExtract"/>
      <addaction name="separator"/>
@@ -383,26 +382,26 @@
      <addaction name="actionReplace"/>
     </widget>
     <widget class="QMenu" name="menuPaddingActions">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>&amp;Padding</string>
      </property>
      <addaction name="actionHexView"/>
      <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
+     <addaction name="separator"/>
      <addaction name="actionExtract"/>
     </widget>
     <widget class="QMenu" name="menuVolumeActions">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>&amp;Volume</string>
      </property>
      <addaction name="actionHexView"/>
      <addaction name="actionBodyHexView"/>
      <addaction name="actionUncompressedHexView"/>
+     <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
+     <addaction name="menuHashBodyActions"/>
+     <addaction name="menuHashUncompressedActions"/>
      <addaction name="separator"/>
      <addaction name="actionExtract"/>
      <addaction name="actionExtractBody"/>
@@ -415,15 +414,16 @@
      <addaction name="actionReplaceBody"/>
     </widget>
     <widget class="QMenu" name="menuFileActions">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>&amp;File</string>
      </property>
      <addaction name="actionHexView"/>
      <addaction name="actionBodyHexView"/>
      <addaction name="actionUncompressedHexView"/>
+     <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
+     <addaction name="menuHashBodyActions"/>
+     <addaction name="menuHashUncompressedActions"/>
      <addaction name="separator"/>
      <addaction name="actionExtract"/>
      <addaction name="actionExtractBody"/>
@@ -440,9 +440,6 @@
      <addaction name="actionRemove"/>
     </widget>
     <widget class="QMenu" name="menuSectionActions">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>&amp;Section</string>
      </property>
@@ -450,9 +447,13 @@
      <addaction name="actionBodyHexView"/>
      <addaction name="actionUncompressedHexView"/>
      <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
+     <addaction name="menuHashBodyActions"/>
+     <addaction name="menuHashUncompressedActions"/>
+     <addaction name="separator"/>
      <addaction name="actionExtract"/>
      <addaction name="actionExtractBody"/>
-     <addaction name="actionExtractBodyUncompressed"/>
+     <addaction name="actionExtractUncompressed"/>
      <addaction name="separator"/>
      <addaction name="actionRebuild"/>
      <addaction name="separator"/>
@@ -478,15 +479,16 @@
      <addaction name="actionMessagesClear"/>
     </widget>
     <widget class="QMenu" name="menuEntryActions">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>&amp;Entry</string>
      </property>
      <addaction name="actionHexView"/>
      <addaction name="actionBodyHexView"/>
      <addaction name="actionUncompressedHexView"/>
+     <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
+     <addaction name="menuHashBodyActions"/>
+     <addaction name="menuHashUncompressedActions"/>
      <addaction name="separator"/>
      <addaction name="actionGoToData"/>
      <addaction name="separator"/>
@@ -504,15 +506,16 @@
      <addaction name="actionRemove"/>
     </widget>
     <widget class="QMenu" name="menuStoreActions">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
      <property name="title">
       <string>S&amp;tore</string>
      </property>
      <addaction name="actionHexView"/>
      <addaction name="actionBodyHexView"/>
      <addaction name="actionUncompressedHexView"/>
+     <addaction name="separator"/>
+     <addaction name="menuHashActions"/>
+     <addaction name="menuHashBodyActions"/>
+     <addaction name="menuHashUncompressedActions"/>
      <addaction name="separator"/>
      <addaction name="actionExtract"/>
      <addaction name="actionExtractBody"/>
@@ -528,6 +531,7 @@
     </widget>
     <addaction name="actionGoToBase"/>
     <addaction name="actionGoToAddress"/>
+    <addaction name="separator"/>
     <addaction name="actionSearch"/>
     <addaction name="separator"/>
     <addaction name="menuCapsuleActions"/>
@@ -548,6 +552,14 @@
      <string>&amp;View</string>
     </property>
     <addaction name="actionToggleBootGuardMarking"/>
+    <addaction name="separator"/>
+    <addaction name="actionResetDocks"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopyItemName"/>
+    <addaction name="separator"/>
+    <addaction name="actionExpandItemRecursively"/>
+    <addaction name="actionCollapseItemRecursively"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAction"/>
@@ -561,9 +573,6 @@
    <property name="text">
     <string>Insert &amp;after...</string>
    </property>
-   <property name="toolTip">
-    <string>Insert an object from file after selected object</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+I</string>
    </property>
@@ -574,9 +583,6 @@
    </property>
    <property name="text">
     <string>Insert b&amp;efore...</string>
-   </property>
-   <property name="toolTip">
-    <string>Insert object from file before selected object</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+I</string>
@@ -589,9 +595,6 @@
    <property name="text">
     <string>Rep&amp;lace as is...</string>
    </property>
-   <property name="toolTip">
-    <string>Replace selected object as is with an object from file</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
@@ -602,9 +605,6 @@
    </property>
    <property name="text">
     <string>E&amp;xtract as is...</string>
-   </property>
-   <property name="toolTip">
-    <string>Extract selected object as is to file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
@@ -617,9 +617,6 @@
    <property name="text">
     <string>Extract &amp;body...</string>
    </property>
-   <property name="toolTip">
-    <string>Extract body of selected object to file</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+E</string>
    </property>
@@ -631,9 +628,6 @@
    <property name="text">
     <string>Re&amp;move</string>
    </property>
-   <property name="toolTip">
-    <string>Remove selected object</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+Del</string>
    </property>
@@ -641,9 +635,6 @@
   <action name="actionOpenImageFile">
    <property name="text">
     <string>&amp;Open image file...</string>
-   </property>
-   <property name="toolTip">
-    <string>Open image file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -656,9 +647,6 @@
    <property name="text">
     <string>Insert &amp;into...</string>
    </property>
-   <property name="toolTip">
-    <string>Insert object from file into selected object</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
    </property>
@@ -670,9 +658,6 @@
    <property name="text">
     <string>&amp;Save image file...</string>
    </property>
-   <property name="toolTip">
-    <string>Save modified image file</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
@@ -683,9 +668,6 @@
    </property>
    <property name="text">
     <string>&amp;Rebuild</string>
-   </property>
-   <property name="toolTip">
-    <string>Rebuild selected object</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Space</string>
@@ -742,9 +724,6 @@
    <property name="text">
     <string>Clea&amp;r</string>
    </property>
-   <property name="toolTip">
-    <string>Clear messages</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+Backspace</string>
    </property>
@@ -755,9 +734,6 @@
    </property>
    <property name="text">
     <string>Replace b&amp;ody...</string>
-   </property>
-   <property name="toolTip">
-    <string>Replace body of selected object with a data from file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+R</string>
@@ -793,15 +769,12 @@
     <string>Ctrl+Shift+O</string>
    </property>
   </action>
-  <action name="actionExtractBodyUncompressed">
+  <action name="actionExtractUncompressed">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Extract body &amp;uncompressed...</string>
-   </property>
-   <property name="toolTip">
-    <string>Uncompress and extract body of selected object to file</string>
+    <string>Extract &amp;uncompressed...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+E</string>
@@ -834,7 +807,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Select item at base...</string>
+    <string>Select item at &amp;base...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
@@ -902,9 +875,6 @@
    <property name="text">
     <string>Generate &amp;report...</string>
    </property>
-   <property name="toolTip">
-    <string>Generate report</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+Alt+R</string>
    </property>
@@ -919,10 +889,10 @@
   </action>
   <action name="actionLoadDefaultGuidDatabase">
    <property name="text">
-    <string>Load &amp;default GUID database</string>
+    <string>Load de&amp;fault GUID database</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+D</string>
+    <string>Ctrl+Alt+F</string>
    </property>
   </action>
   <action name="actionExportDiscoveredGuids">
@@ -930,10 +900,206 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Export discovered GUIDs...</string>
+    <string>Export disc&amp;overed GUIDs...</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Alt+E</string>
+    <string>Ctrl+Alt+O</string>
+   </property>
+  </action>
+  <action name="actionCopyItemName">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Copy item name</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+T</string>
+   </property>
+  </action>
+  <action name="actionExpandItemRecursively">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>E&amp;xpand item recursively</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+[</string>
+   </property>
+  </action>
+  <action name="actionCollapseItemRecursively">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>C&amp;ollapse item recursively</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+]</string>
+   </property>
+  </action>
+  <action name="actionClearRecentlyOpenedFilesList">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Clear recently opened files list</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Backspace</string>
+   </property>
+  </action>
+  <action name="actionUncompressedHashCrc32">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>CRC32</string>
+   </property>
+  </action>
+  <action name="actionUncompressedHashSha256">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-256</string>
+   </property>
+  </action>
+  <action name="actionUncompressedHashSha384">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-384</string>
+   </property>
+  </action>
+  <action name="actionUncompressedHashSha512">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-512</string>
+   </property>
+  </action>
+  <action name="actionUncompressedHashSha1">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA1</string>
+   </property>
+  </action>
+  <action name="actionUncompressedHashSm3">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SM3</string>
+   </property>
+  </action>
+  <action name="actionBodyHashCrc32">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>CRC32</string>
+   </property>
+  </action>
+  <action name="actionBodyHashSha256">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-256</string>
+   </property>
+  </action>
+  <action name="actionBodyHashSha384">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-384</string>
+   </property>
+  </action>
+  <action name="actionBodyHashSha512">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-512</string>
+   </property>
+  </action>
+  <action name="actionBodyHashSha1">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA1</string>
+   </property>
+  </action>
+  <action name="actionBodyHashSm3">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SM3</string>
+   </property>
+  </action>
+  <action name="actionHashCrc32">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>CRC32</string>
+   </property>
+  </action>
+  <action name="actionHashSha256">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-256</string>
+   </property>
+  </action>
+  <action name="actionHashSha384">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-384</string>
+   </property>
+  </action>
+  <action name="actionHashSha512">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA2-512</string>
+   </property>
+  </action>
+  <action name="actionHashSha1">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SHA1</string>
+   </property>
+  </action>
+  <action name="actionHashSm3">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SM3</string>
+   </property>
+  </action>
+  <action name="actionResetDocks">
+   <property name="text">
+    <string>&amp;Reset docks layout</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+L</string>
    </property>
   </action>
  </widget>

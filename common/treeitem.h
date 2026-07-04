@@ -60,14 +60,20 @@ public:
     UString text() const { return itemText; }
     void setText(const UString &text) { itemText = text; }
 
-    UByteArray header() const { return itemHeader; }
+    const UByteArray & header() const { return itemHeader; }
     bool hasEmptyHeader() const { return itemHeader.isEmpty(); }
+    UINT32 headerSize() const { return (UINT32)itemHeader.size(); }
 
-    UByteArray body() const { return itemBody; };
+    const UByteArray & body() const { return itemBody; };
     bool hasEmptyBody() const { return itemBody.isEmpty(); }
+    UINT32 bodySize() const { return (UINT32)itemBody.size(); }
 
-    UByteArray tail() const { return itemTail; };
+    const UByteArray & tail() const { return itemTail; };
     bool hasEmptyTail() const { return itemTail.isEmpty(); }
+    UINT32 tailSize() const {return (UINT32)itemTail.size();}
+    
+    UByteArray full() const { return itemHeader + itemBody + itemTail; }
+    UINT32 fullSize() const { return (UINT32)(itemHeader.size() + itemBody.size() + itemTail.size()); }
 
     UString info() const { return itemInfo; }
     void addInfo(const UString &info, const bool append) { if (append) itemInfo += info; else itemInfo = info + itemInfo; }

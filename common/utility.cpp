@@ -84,6 +84,7 @@ UString uniqueItemName(const UModelIndex & index)
         case Types::FsysEntry:
         case Types::EvsaEntry:
         case Types::FlashMapEntry:
+        case Types::InsydeFlashDeviceMapEntry:
         case Types::File:
             name = itemText.isEmpty() ? itemName : itemName + '_' + itemText;
             break;
@@ -439,13 +440,32 @@ UINT32 calculateChecksum32(const UINT32* buffer, UINT32 bufferSize)
     return (UINT32)(0x100000000ULL - counter);
 }
 
+// Returns 0x00..0xFF if an array is filled by a single repeated value, and 0xFFFFFFFF if not
+UINT32 uniformByte(const UByteArray& a, const UINT32 rcIfEmpty)
+{
+    if (a.isEmpty())
+        return rcIfEmpty;
+    size_t s = a.size();
+    if ((s == 1) || (s > 1 && memcmp(a.constData(), a.constData() + 1, s - 1) == 0))
+        return (UINT8)a.at(0);
+    return UINT32_MAX;
+}
+
+// Returns true if an array is filled by a specified single repeated value or an array is empty
+UINT32 isUniformByte(const UByteArray& a, const UINT8 value)
+{
+    return uniformByte(a, value) == value;
+}
+
 // Get padding type for a given padding
 UINT8 getPaddingType(const UByteArray & padding)
 {
-    if (padding.count('\x00') == padding.size())
-        return Subtypes::ZeroPadding;
-    if (padding.count('\xFF') == padding.size())
-        return Subtypes::OnePadding;
+    switch (uniformByte(padding)) {
+        case 0:
+            return Subtypes::ZeroPadding;
+        case 0xFF:
+            return Subtypes::OnePadding;
+    }
     return Subtypes::DataPadding;
 }
 
@@ -466,7 +486,7 @@ INTN findPattern(const UINT8 *pattern, const UINT8 *patternMask, UINTN patternSi
     if (patternSize == 0 || dataSize == 0 || dataOff >= dataSize || dataSize - dataOff < patternSize)
         return -1;
     
-    while (dataOff + patternSize < dataSize) {
+    while (dataOff + patternSize <= dataSize) {
         bool matches = true;
         for (UINTN i = 0; i < patternSize; i++) {
             if ((data[dataOff + i] & patternMask[i]) != pattern[i]) {

@@ -26,7 +26,9 @@ public:
         setOrganizationName("CodeRush");
         setOrganizationDomain("coderush.me");
         setApplicationName("UEFITool");
-        
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
+        setDesktopFileName("uefitool");
+#endif
         tool = new UEFITool();
     }
     
@@ -46,10 +48,12 @@ public:
     
     int startup()
     {
+        QApplication::processEvents();
         tool->setProgramPath(arguments().at(0));
         if (arguments().length() > 1)
             tool->openImageFile(arguments().at(1));
         tool->show();
+        tool->readSettings();
         
         return exec();
     }

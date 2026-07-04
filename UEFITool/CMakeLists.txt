@@ -23,7 +23,6 @@ SET(PROJECT_HEADERS
  hexviewdialog.h
  gotobasedialog.h
  gotoaddressdialog.h
- qhexview5/qhexview.h
 )
 
 SET(PROJECT_SOURCES
@@ -36,19 +35,6 @@ SET(PROJECT_SOURCES
  hexlineedit.cpp
  ffsfinder.cpp
  hexspinbox.cpp
- qhexview5/model/buffer/qhexbuffer.cpp
- qhexview5/model/buffer/qdevicebuffer.cpp
- qhexview5/model/buffer/qmemorybuffer.cpp
- qhexview5/model/commands/hexcommand.cpp
- qhexview5/model/commands/insertcommand.cpp
- qhexview5/model/commands/removecommand.cpp
- qhexview5/model/commands/replacecommand.cpp
- qhexview5/model/qhexcursor.cpp
- qhexview5/model/qhexdelegate.cpp
- qhexview5/model/qhexdocument.cpp
- qhexview5/model/qhexmetadata.cpp
- qhexview5/model/qhexutils.cpp
- qhexview5/qhexview.cpp
  ../common/fitparser.cpp
  ../common/guiddatabase.cpp
  ../common/nvram.cpp
@@ -60,9 +46,9 @@ SET(PROJECT_SOURCES
  ../common/ffs.cpp
  ../common/peimage.cpp
  ../common/utility.cpp
- ../common/amd_microcode.cpp
  ../common/ffsbuilder.cpp
  ../common/ffsparser.cpp
+ ../common/amd_microcode.cpp
  ../common/ffsreport.cpp
  ../common/treeitem.cpp
  ../common/treemodel.cpp
@@ -125,6 +111,9 @@ ADD_EXECUTABLE(UEFITool ${PROJECT_HEADERS} ${PROJECT_FORMS} ${PROJECT_SOURCES})
 TARGET_INCLUDE_DIRECTORIES(UEFITool PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 TARGET_LINK_LIBRARIES(UEFITool PRIVATE Qt6::Widgets)
+
+ADD_SUBDIRECTORY(QHexView)
+TARGET_LINK_LIBRARIES(UEFITool PRIVATE QHexView)
 
 SET_TARGET_PROPERTIES(UEFITool PROPERTIES
  WIN32_EXECUTABLE ON

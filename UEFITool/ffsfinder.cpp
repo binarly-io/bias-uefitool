@@ -12,6 +12,7 @@
  */
 
 #include "ffsfinder.h"
+#include "../common/utility.h"
 
 #if QT_VERSION_MAJOR >= 6
 #include <QRegularExpression>
@@ -36,7 +37,7 @@ USTATUS FfsFinder::findHexPattern(const UModelIndex & index, const UByteArray & 
         return U_INVALID_PARAMETER;
     
     // Check for "all substrings" pattern
-    if (hexPattern.count('.') == hexPattern.length())
+    if (isUniformByte(hexPattern, '.'))
         return U_SUCCESS;
     
     USTATUS ret = U_ITEM_NOT_FOUND;
@@ -78,7 +79,7 @@ USTATUS FfsFinder::findHexPattern(const UModelIndex & index, const UByteArray & 
         if (offset % 2 == 0) {
             // For patterns that cross header|body boundary, skip patterns entirely located in body, since
             // children search above has already found them.
-            if (!(hasChildren && mode == SEARCH_MODE_ALL && offset/2 >= model->header(index).size())) {
+            if (!(hasChildren && mode == SEARCH_MODE_ALL && offset/2 >= model->headerSize(index))) {
                 UModelIndex parentFileIndex = model->findParentOfType(index, Types::File);
                 UString name = model->name(index);
                 if (model->parent(index) == parentFileIndex) {
@@ -165,7 +166,7 @@ USTATUS FfsFinder::findGuidPattern(const UModelIndex & index, const UByteArray &
     hexPattern.append(list.at(3)).append(list.at(4));
 
     // Check for "all substrings" pattern
-    if (hexPattern.count('.') == hexPattern.length())
+    if (isUniformByte(hexPattern, '.'))
         return U_SUCCESS;
 
 #if QT_VERSION_MAJOR >= 6
@@ -230,6 +231,25 @@ USTATUS FfsFinder::findTextPattern(const UModelIndex & index, const UString & pa
     for (int i = 0; i < model->rowCount(index); i++) {
         if (U_SUCCESS == findTextPattern(index.model()->index(i, index.column(), index), pattern, mode, unicode, caseSensitive))
             ret = U_SUCCESS;
+    }
+
+    if (mode == SEARCH_MODE_INFO || mode == SEARCH_MODE_ALL) {
+        UString info = model->info(index);
+        if (!info.isEmpty() && info.indexOf(pattern, 0, caseSensitive) >= 0) {
+            UModelIndex parentFileIndex = model->findParentOfType(index, Types::File);
+            UString name = model->name(index);
+            if (model->parent(index) == parentFileIndex) {
+                name = model->name(parentFileIndex) + UString("/") + name;
+            }
+            else if (parentFileIndex.isValid()) {
+                name = model->name(parentFileIndex) + UString("/.../") + name;
+            }
+
+            msg((unicode ? UString("Unicode") : UString("ASCII")) + UString(" text \"") + UString(pattern) + UString("\" found in ") + name + UString(" information"), index);
+            ret = U_SUCCESS;
+        }
+        if (mode == SEARCH_MODE_INFO)
+            return ret;
     }
 
     UByteArray body;

@@ -56,7 +56,13 @@ UINT16 calculateChecksum16(const UINT16* buffer, UINT32 bufferSize);
 // 32bit checksum calculation routine
 UINT32 calculateChecksum32(const UINT32* buffer, UINT32 bufferSize);
 
-// Return padding type from it's contents
+// Returns 0x00..0xFF if an array is filled by a single repeated value, and 0xFFFFFFFF if not
+UINT32 uniformByte(const UByteArray& a, const UINT32 rcIfEmpty = UINT32_MAX);
+
+// Returns true if an array is filled by a specified single repeated value or an array is empty
+UINT32 isUniformByte(const UByteArray& a, const UINT8 value);
+
+// Returns padding type from it's contents
 UINT8 getPaddingType(const UByteArray & padding);
 
 // Make pattern from a hexstring with an assumption of . being any char

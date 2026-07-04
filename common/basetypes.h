@@ -146,9 +146,9 @@ typedef ptrdiff_t INTN;
 #define CREATE_MODE_AFTER     3
 
 // Item extract modes
-#define EXTRACT_MODE_AS_IS                 0
-#define EXTRACT_MODE_BODY                  1
-#define EXTRACT_MODE_BODY_UNCOMPRESSED     2
+#define EXTRACT_MODE_AS_IS        0
+#define EXTRACT_MODE_BODY         1
+#define EXTRACT_MODE_UNCOMPRESSED 2
 
 // Item replace modes
 #define REPLACE_MODE_AS_IS    0
@@ -171,6 +171,7 @@ typedef ptrdiff_t INTN;
 #define SEARCH_MODE_HEADER    1
 #define SEARCH_MODE_BODY      2
 #define SEARCH_MODE_ALL       3
+#define SEARCH_MODE_INFO      4
 
 // EFI GUID
 typedef struct EFI_GUID_ {
