@@ -15,8 +15,8 @@
 #define HEXVIEWDIALOG_H
 
 #include <QDialog>
+#include <QHexView/qhexview.h>
 #include "../common/treemodel.h"
-#include "qhexview5/qhexview.h"
 #include "ui_hexviewdialog.h"
 
 class HexViewDialog : public QDialog

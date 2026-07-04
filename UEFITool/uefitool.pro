@@ -64,20 +64,21 @@ HEADERS += uefitool.h \
  ../common/zlib/zlib.h \
  ../common/zlib/crc32.h \
  ../version.h \
- qhexview5/model/buffer/qhexbuffer.h \
- qhexview5/model/buffer/qdevicebuffer.h \
- qhexview5/model/buffer/qmemorybuffer.h \
- qhexview5/model/commands/hexcommand.h \
- qhexview5/model/commands/insertcommand.h \
- qhexview5/model/commands/removecommand.h \
- qhexview5/model/commands/replacecommand.h \ 
- qhexview5/model/qhexcursor.h \
- qhexview5/model/qhexdelegate.h \
- qhexview5/model/qhexdocument.h \
- qhexview5/model/qhexmetadata.h \
- qhexview5/model/qhexoptions.h \
- qhexview5/model/qhexutils.h \
- qhexview5/qhexview.h
+ QHexView/include/QHexView/model/buffer/qhexbuffer.h \
+ QHexView/include/QHexView/model/buffer/qdevicebuffer.h \
+ QHexView/include/QHexView/model/buffer/qmemorybuffer.h \
+ QHexView/include/QHexView/model/buffer/qmappedfilebuffer.h \
+ QHexView/include/QHexView/model/commands/hexcommand.h \
+ QHexView/include/QHexView/model/commands/insertcommand.h \
+ QHexView/include/QHexView/model/commands/removecommand.h \
+ QHexView/include/QHexView/model/commands/replacecommand.h \
+ QHexView/include/QHexView/model/qhexcursor.h \
+ QHexView/include/QHexView/model/qhexdelegate.h \
+ QHexView/include/QHexView/model/qhexdocument.h \
+ QHexView/include/QHexView/model/qhexmetadata.h \
+ QHexView/include/QHexView/model/qhexoptions.h \
+ QHexView/include/QHexView/model/qhexutils.h \
+ QHexView/include/QHexView/qhexview.h
 
 SOURCES += uefitool_main.cpp \
  uefitool.cpp \
@@ -99,6 +100,7 @@ SOURCES += uefitool_main.cpp \
  ../common/utility.cpp \
  ../common/ffsbuilder.cpp \
  ../common/ffsparser.cpp \
+ ../common/amd_microcode.cpp \
  ../common/ffsreport.cpp \
  ../common/treeitem.cpp \
  ../common/treemodel.cpp \
@@ -141,19 +143,22 @@ SOURCES += uefitool_main.cpp \
  ../common/zlib/trees.c \
  ../common/zlib/uncompr.c \
  ../common/zlib/zutil.c \
- qhexview5/model/buffer/qhexbuffer.cpp \
- qhexview5/model/buffer/qdevicebuffer.cpp \
- qhexview5/model/buffer/qmemorybuffer.cpp \
- qhexview5/model/commands/hexcommand.cpp \
- qhexview5/model/commands/insertcommand.cpp \
- qhexview5/model/commands/removecommand.cpp \
- qhexview5/model/commands/replacecommand.cpp \
- qhexview5/model/qhexcursor.cpp \
- qhexview5/model/qhexdelegate.cpp \
- qhexview5/model/qhexdocument.cpp \
- qhexview5/model/qhexmetadata.cpp \
- qhexview5/model/qhexutils.cpp \
- qhexview5/qhexview.cpp 
+ QHexView/src/model/buffer/qhexbuffer.cpp \
+ QHexView/src/model/buffer/qdevicebuffer.cpp \
+ QHexView/src/model/buffer/qmemorybuffer.cpp \
+ QHexView/src/model/buffer/qmappedfilebuffer.cpp \
+ QHexView/src/model/commands/hexcommand.cpp \
+ QHexView/src/model/commands/insertcommand.cpp \
+ QHexView/src/model/commands/removecommand.cpp \
+ QHexView/src/model/commands/replacecommand.cpp \
+ QHexView/src/model/qhexcursor.cpp \
+ QHexView/src/model/qhexdelegate.cpp \
+ QHexView/src/model/qhexdocument.cpp \
+ QHexView/src/model/qhexmetadata.cpp \
+ QHexView/src/model/qhexutils.cpp \
+ QHexView/src/qhexview.cpp
+
+INCLUDEPATH += QHexView/include/
 
 FORMS += uefitool.ui \
  searchdialog.ui \
